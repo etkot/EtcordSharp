@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtcordSharp", "EtcordSharp\EtcordSharp.csproj", "{56923CA3-68DB-4F58-8609-2427183CC034}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56923CA3-68DB-4F58-8609-2427183CC034}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56923CA3-68DB-4F58-8609-2427183CC034}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56923CA3-68DB-4F58-8609-2427183CC034}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56923CA3-68DB-4F58-8609-2427183CC034}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {69887D08-446A-4F4B-8DB2-975835B83C4C}
+	EndGlobalSection
+EndGlobal
