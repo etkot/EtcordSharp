@@ -16,6 +16,7 @@ namespace EtcordSharp.Client.Windows
         private Timer receiveTimer;
 
         private ClientChannel selectedChannel = null;
+        private Dictionary<ClientChannel, TreeNode> channelNodes;
 
 
         public MainForm()
@@ -28,6 +29,8 @@ namespace EtcordSharp.Client.Windows
             receiveTimer.Interval = 15;
             receiveTimer.Tick += (s, e) => client.Receive();
             receiveTimer.Start();
+
+            channelNodes = new Dictionary<ClientChannel, TreeNode>();
 
             InitializeClientEvents();
         }
@@ -99,12 +102,33 @@ namespace EtcordSharp.Client.Windows
 
         private void OnChannelAdded(ClientChannel channel)
         {
-            listBoxChannels.Items.Add(channel);
+            TreeNode node;
+            string key = channel.ChannelID.ToString();
+            if (channel.Parent == null)
+            {
+                node = treeViewChannels.Nodes.Add(key, channel.Name);
+            }
+            else
+            {
+                TreeNode parent;
+                if (channelNodes.TryGetValue(channel.Parent, out parent))
+                {
+                    node = parent.Nodes.Add(key, channel.Name);
+                }
+                else
+                {
+                    Console.WriteLine("Warning: Channel parent node not found");
+                    return;
+                }
+            }
+
+            treeViewChannels.ExpandAll();
+            channelNodes.Add(channel, node);
         }
 
         private void OnChannelUpdated(ClientChannel channel)
         {
-            listBoxChannels.Update();
+            treeViewChannels.Update();
         }
 
         private void OnMessageAdded(ClientMessage message)
@@ -133,12 +157,17 @@ namespace EtcordSharp.Client.Windows
             }
         }
 
-        private void listBoxChannels_SelectedIndexChanged(object sender, EventArgs e)
+        private void treeViewChannels_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            SelectChannel((ClientChannel)listBoxChannels.SelectedItem);
+            SelectChannel(client.Channels[int.Parse(treeViewChannels.SelectedNode.Name)]);
         }
 
-        private void chatInputBox_KeyUp(object sender, KeyEventArgs e)
+        private void treeViewChannels_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            
+        }
+
+        private void chatInputBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return)
             {

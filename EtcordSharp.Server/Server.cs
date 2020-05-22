@@ -25,7 +25,10 @@ namespace EtcordSharp.Server
             Clients = new Dictionary<int, ServerClient>();
             Channels = new Dictionary<int, ServerChannel>()
             {
-                { 1, new ServerChannel(this, 1, 0, "New Channel", ServerChannel.ChannelType.Both) }
+                { 1, new ServerChannel(this, 1, 0, "Parent", ServerChannel.ChannelType.None) },
+                { 2, new ServerChannel(this, 2, 1, "Text Chat", ServerChannel.ChannelType.VoiceChat) },
+                { 3, new ServerChannel(this, 3, 1, "Voice Chat", ServerChannel.ChannelType.TextChat) },
+                { 4, new ServerChannel(this, 4, 0, "Both", ServerChannel.ChannelType.Both) },
             };
 
             // create and start the server

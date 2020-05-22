@@ -17,23 +17,28 @@ namespace EtcordSharp.Client
         private Client client;
 
         public int ChannelID { get; private set; }
-        public int ParentID { get; private set; }
+        public ClientChannel Parent { get; private set; }
         public string Name { get; private set; }
         public ChannelType Type { get; private set; }
 
         public Dictionary<int, ClientMessage> Messages { get; private set; }
 
 
-        public ClientChannel(Client client, int id, int parentID, string name, ChannelType type)
+        public ClientChannel(Client client, int id, ClientChannel parent, string name, ChannelType type)
         {
             this.client = client;
 
             ChannelID = id;
-            ParentID = parentID;
+            Parent = parent;
             Name = name;
             Type = type;
 
             Messages = new Dictionary<int, ClientMessage>();
+        }
+
+        public void ClearMessages()
+        {
+            Messages.Clear();
         }
 
         public ClientMessage AddMessage(Packets.Types.Data.MessageData message)
@@ -46,11 +51,12 @@ namespace EtcordSharp.Client
 
         public void GetChatHistory()
         {
+            ClearMessages();
             client.SendPacket(Packets.PacketType.GetChatHistory, new Packets.Packets.GetChatHistory
             {
                 channelID = ChannelID,
                 count = 100,
-                offsetID = 0,
+                offsetID = -1,
             });
         }
 

@@ -31,10 +31,10 @@
             this.buttonConnect = new System.Windows.Forms.Button();
             this.chatBox = new System.Windows.Forms.TextBox();
             this.panelConnectionControls = new System.Windows.Forms.Panel();
-            this.listBoxChannels = new System.Windows.Forms.ListBox();
             this.chatInputBox = new System.Windows.Forms.TextBox();
             this.buttonSend = new System.Windows.Forms.Button();
             this.panelChat = new System.Windows.Forms.Panel();
+            this.treeViewChannels = new System.Windows.Forms.TreeView();
             this.panelConnectionControls.SuspendLayout();
             this.panelChat.SuspendLayout();
             this.SuspendLayout();
@@ -71,17 +71,6 @@
             this.panelConnectionControls.Size = new System.Drawing.Size(800, 29);
             this.panelConnectionControls.TabIndex = 2;
             // 
-            // listBoxChannels
-            // 
-            this.listBoxChannels.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.listBoxChannels.FormattingEnabled = true;
-            this.listBoxChannels.Location = new System.Drawing.Point(10, 45);
-            this.listBoxChannels.Name = "listBoxChannels";
-            this.listBoxChannels.Size = new System.Drawing.Size(163, 433);
-            this.listBoxChannels.TabIndex = 3;
-            this.listBoxChannels.SelectedIndexChanged += new System.EventHandler(this.listBoxChannels_SelectedIndexChanged);
-            // 
             // chatInputBox
             // 
             this.chatInputBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -91,7 +80,7 @@
             this.chatInputBox.ReadOnly = true;
             this.chatInputBox.Size = new System.Drawing.Size(570, 20);
             this.chatInputBox.TabIndex = 4;
-            this.chatInputBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.chatInputBox_KeyUp);
+            this.chatInputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.chatInputBox_KeyDown);
             // 
             // buttonSend
             // 
@@ -118,14 +107,25 @@
             this.panelChat.Size = new System.Drawing.Size(631, 435);
             this.panelChat.TabIndex = 6;
             // 
+            // treeViewChannels
+            // 
+            this.treeViewChannels.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treeViewChannels.Location = new System.Drawing.Point(10, 45);
+            this.treeViewChannels.Name = "treeViewChannels";
+            this.treeViewChannels.Size = new System.Drawing.Size(163, 435);
+            this.treeViewChannels.TabIndex = 7;
+            this.treeViewChannels.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewChannels_AfterSelect);
+            this.treeViewChannels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.treeViewChannels_MouseDoubleClick);
+            // 
             // MainForm
             // 
             this.AcceptButton = this.buttonSend;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(820, 489);
+            this.Controls.Add(this.treeViewChannels);
             this.Controls.Add(this.panelChat);
-            this.Controls.Add(this.listBoxChannels);
             this.Controls.Add(this.panelConnectionControls);
             this.Name = "MainForm";
             this.Text = "EtcordSharp";
@@ -141,10 +141,10 @@
         private System.Windows.Forms.Button buttonConnect;
         private System.Windows.Forms.TextBox chatBox;
         private System.Windows.Forms.Panel panelConnectionControls;
-        private System.Windows.Forms.ListBox listBoxChannels;
         private System.Windows.Forms.TextBox chatInputBox;
         private System.Windows.Forms.Button buttonSend;
         private System.Windows.Forms.Panel panelChat;
+        private System.Windows.Forms.TreeView treeViewChannels;
     }
 }
 

@@ -47,7 +47,10 @@ namespace EtcordSharp.Client
             {
                 Packets.Types.Data.ChannelData data = getChannels.channels[i];
 
-                ClientChannel channel = new ClientChannel(this, data.ChannelID, data.ParentID, data.Name, (ClientChannel.ChannelType)data.type);
+                ClientChannel parentChannel;
+                Channels.TryGetValue(data.ParentID, out parentChannel);
+
+                ClientChannel channel = new ClientChannel(this, data.ChannelID, parentChannel, data.Name, (ClientChannel.ChannelType)data.type);
                 Channels.Add(data.ChannelID, channel);
 
                 OnChannelAdded?.Invoke(channel);
