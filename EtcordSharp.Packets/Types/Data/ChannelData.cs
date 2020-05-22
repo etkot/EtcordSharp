@@ -31,7 +31,7 @@ namespace EtcordSharp.Packets.Types.Data
             if (!ChannelID.Deserialize(bytes, ref position)) return false;
             if (!ParentID.Deserialize(bytes, ref position)) return false;
             if (!Name.Deserialize(bytes, ref position)) return false;
-            if (!PacketSerializer.Serialize(type, bytes, ref position)) return false;
+            if (!PacketSerializer.Deserialize(bytes, ref position, out type)) return false;
 
             return true;
         }

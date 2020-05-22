@@ -1,6 +1,8 @@
-﻿namespace EtcordSharp.Packets.Types
+﻿using System.Collections;
+
+namespace EtcordSharp.Packets.Types
 {
-    public struct Array<T> : IPacketSerializable
+    public struct Array<T> : IPacketSerializable, IEnumerable
     {
         public T[] Elements { get; private set; }
         public int Length { get => Elements.Length; }
@@ -49,6 +51,8 @@
 
             return true;
         }
+
+        public IEnumerator GetEnumerator() => Elements.GetEnumerator();
 
         public T this[int index]
         {

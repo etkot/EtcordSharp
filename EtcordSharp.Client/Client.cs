@@ -30,10 +30,12 @@ namespace EtcordSharp.Client
         }
         public string Username { get; private set; }
 
-        public Dictionary<int, Channel> Channels { get; private set; }
+        public Dictionary<int, ClientChannel> Channels { get; private set; }
 
         public Action<ClientState> OnClientStateChanged;
-        public Action<Channel> OnChannelUpdated;
+        public Action<ClientChannel> OnChannelAdded;
+        public Action<ClientChannel> OnChannelUpdated;
+        public Action<ClientMessage> OnMessageAdded;
 
         private Telepathy.Client tcpClient;
         private int clientID;
@@ -45,7 +47,7 @@ namespace EtcordSharp.Client
             Telepathy.Logger.LogWarning = msg => Console.WriteLine("Telepathy: " + msg);
             Telepathy.Logger.LogError = msg => Console.WriteLine("Telepathy: " + msg);
 
-            Channels = new Dictionary<int, Channel>();
+            Channels = new Dictionary<int, ClientChannel>();
 
             tcpClient = new Telepathy.Client();
             State = ClientState.Unconnected;
@@ -97,6 +99,20 @@ namespace EtcordSharp.Client
             }
         }
 
+        public void SendMessage(ClientChannel channel, string content)
+        {
+            Console.WriteLine("Sending chat message to channel " + channel.ChannelID + " with content \"" + content + "\"");
+
+            SendPacket(PacketType.ChatMessage, new ChatMessage
+            {
+                channelID = channel.ChannelID,
+                message = new Packets.Types.Data.MessageData
+                {
+                    Content = content
+                }
+            });
+        }
+
 
 
         #region Message receive
@@ -123,7 +139,7 @@ namespace EtcordSharp.Client
 
         private void OnClientConnected(Telepathy.Message msg)
         {
-            Console.WriteLine(msg.connectionId + " Connected");
+            Console.WriteLine("Connected");
 
             State = ClientState.Handshaking;
             tcpClient.Send(PacketSerializer.SerializePacket(PacketType.Handshake, new Packets.Packets.Handshake
@@ -135,12 +151,12 @@ namespace EtcordSharp.Client
 
         private void OnClientDisconnected(Telepathy.Message msg)
         {
-            Console.WriteLine(msg.connectionId + " Disconnected");
+            Console.WriteLine("Disconnected");
         }
 
         private void OnClientData(Telepathy.Message msg)
         {
-            Console.WriteLine("Received Data");
+            //Console.WriteLine("Received Data");
 
             PacketSerializer.ReceivePacket(this, msg.data);
         }

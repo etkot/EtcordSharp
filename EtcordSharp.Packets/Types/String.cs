@@ -9,7 +9,7 @@ namespace EtcordSharp.Packets.Types
 
         public int GetSize()
         {
-            VarInt size = Value.Length;
+            VarInt size = Value != null ? Value.Length : 0;
             return size.GetSize() + size;
         }
         public bool Deserialize(byte[] bytes, ref int position)
@@ -25,10 +25,10 @@ namespace EtcordSharp.Packets.Types
         }
         public bool Serialize(byte[] bytes, ref int position)
         {
-            VarInt size = Value.Length;
+            VarInt size = Value != null ? Value.Length : 0;
             if (!size.Serialize(bytes, ref position)) return false;
 
-            for (int i = 0; i < Value.Length; i++)
+            for (int i = 0; i < size; i++)
                 bytes[position++] = (byte)Value[i];
 
             return true;

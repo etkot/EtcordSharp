@@ -80,6 +80,7 @@
             this.listBoxChannels.Name = "listBoxChannels";
             this.listBoxChannels.Size = new System.Drawing.Size(163, 433);
             this.listBoxChannels.TabIndex = 3;
+            this.listBoxChannels.SelectedIndexChanged += new System.EventHandler(this.listBoxChannels_SelectedIndexChanged);
             // 
             // chatInputBox
             // 
@@ -119,6 +120,7 @@
             // 
             // MainForm
             // 
+            this.AcceptButton = this.buttonSend;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(820, 489);

@@ -22,7 +22,7 @@ namespace EtcordSharp.Packets.Types.Data
             if (!MessageID.Deserialize(bytes, ref position)) return false;
             if (!SenderID.Deserialize(bytes, ref position)) return false;
             if (!SenderName.Deserialize(bytes, ref position)) return false;
-            if (!Content.Serialize(bytes, ref position)) return false;
+            if (!Content.Deserialize(bytes, ref position)) return false;
 
             return true;
         }

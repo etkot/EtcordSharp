@@ -168,6 +168,8 @@ namespace EtcordSharp.Server
             if (server.Channels.TryGetValue(chatMessage.channelID, out channel))
             {
                 // Channel found
+                Console.WriteLine(Username + " sent message: \"" + chatMessage.message.Content + "\"");
+
                 channel.SendMessage(this, chatMessage.message.Content);
                 return null;
             }

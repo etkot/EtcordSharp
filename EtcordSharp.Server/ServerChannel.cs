@@ -35,6 +35,9 @@ namespace EtcordSharp.Server
             ParentID = parentID;
             Name = name;
             Type = type;
+
+            Messages = new Dictionary<int, ServerMessage>();
+            VoiceClients = new List<ServerClient>();
         }
 
         public Packets.Types.Data.ChannelData GetChannelData()

@@ -47,10 +47,49 @@ namespace EtcordSharp.Client
             {
                 Packets.Types.Data.ChannelData data = getChannels.channels[i];
 
-                Channel channel = new Channel(data.ChannelID, data.ParentID, data.Name, (Channel.ChannelType)data.type);
+                ClientChannel channel = new ClientChannel(this, data.ChannelID, data.ParentID, data.Name, (ClientChannel.ChannelType)data.type);
                 Channels.Add(data.ChannelID, channel);
 
-                OnChannelUpdated?.Invoke(channel);
+                OnChannelAdded?.Invoke(channel);
+            }
+        }
+
+
+
+        [PacketReceiver(PacketType.GetChatHistory)]
+        public void GetChatHistory(GetChatHistory getChatHistory)
+        {
+            Console.WriteLine("GetChatHistory");
+
+            ClientChannel channel;
+            if (Channels.TryGetValue(getChatHistory.channelID, out channel))
+            {
+                foreach (Packets.Types.Data.MessageData message in getChatHistory.messages)
+                {
+                    ClientMessage newMessage = channel.AddMessage(message);
+                    OnMessageAdded?.Invoke(newMessage);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Warning: Server sent chat history for a channel that doesn't exist");
+            }
+        }
+
+        [PacketReceiver(PacketType.ChatMessage)]
+        public void ChatMessage(ChatMessage chatMessage)
+        {
+            Console.WriteLine("ChatMessage");
+
+            ClientChannel channel;
+            if (Channels.TryGetValue(chatMessage.channelID, out channel))
+            {
+                ClientMessage newMessage = channel.AddMessage(chatMessage.message);
+                OnMessageAdded?.Invoke(newMessage);
+            }
+            else
+            {
+                Console.WriteLine("Warning: Server sent chat message to a channel that doesn't exist");
             }
         }
     }

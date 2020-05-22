@@ -15,6 +15,8 @@ namespace EtcordSharp.Client.Windows
         private Client client;
         private Timer receiveTimer;
 
+        private ClientChannel selectedChannel = null;
+
 
         public MainForm()
         {
@@ -55,6 +57,20 @@ namespace EtcordSharp.Client.Windows
             client.Connect(address, port, username);
         }
 
+        void SelectChannel(ClientChannel channel)
+        {
+            if (channel == selectedChannel)
+                return;
+
+            selectedChannel = channel;
+            channel.GetChatHistory();
+
+            chatBox.ResetText();
+            foreach (KeyValuePair<int, ClientMessage> message in channel.Messages)
+            {
+                chatBox.AppendText("\r\n<" + message.Value.SenderName + "> " + message.Value.Content);
+            }
+        }
 
 
         #region Client events
@@ -62,7 +78,9 @@ namespace EtcordSharp.Client.Windows
         private void InitializeClientEvents()
         {
             client.OnClientStateChanged = OnClientStateChanged;
+            client.OnChannelAdded = OnChannelAdded;
             client.OnChannelUpdated = OnChannelUpdated;
+            client.OnMessageAdded = OnMessageAdded;
         }
 
         private void OnClientStateChanged(Client.ClientState newState)
@@ -79,9 +97,22 @@ namespace EtcordSharp.Client.Windows
             }
         }
 
-        private void OnChannelUpdated(Channel channel)
+        private void OnChannelAdded(ClientChannel channel)
         {
-            listBoxChannels.Items.Add(channel.Name);
+            listBoxChannels.Items.Add(channel);
+        }
+
+        private void OnChannelUpdated(ClientChannel channel)
+        {
+            listBoxChannels.Update();
+        }
+
+        private void OnMessageAdded(ClientMessage message)
+        {
+            if (selectedChannel == message.Channel)
+            {
+                chatBox.AppendText("\r\n<" + message.SenderName + "> " + message.Content);
+            }
         }
 
         #endregion Client events
@@ -102,19 +133,26 @@ namespace EtcordSharp.Client.Windows
             }
         }
 
+        private void listBoxChannels_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SelectChannel((ClientChannel)listBoxChannels.SelectedItem);
+        }
+
         private void chatInputBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return)
             {
                 buttonSend.PerformClick();
             }
+            
+            e.Handled = true;
         }
 
         private void buttonSend_Click(object sender, EventArgs e)
         {
             if (chatInputBox.Text.Length > 0)
             {
-                // TODO: Send message
+                client.SendMessage(selectedChannel, chatInputBox.Text);
 
                 chatInputBox.Text = "";
             }
