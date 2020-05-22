@@ -3,24 +3,30 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EtcordSharp
+namespace EtcordSharp.Server
 {
     public class Server
     {
         private Telepathy.Server tcpServer;
 
-        private Dictionary<int, Client> clients;
+        public Dictionary<int, ServerClient> Clients { get; private set; }
+        public Dictionary<int, ServerChannel> Channels { get; private set; }
 
         public const int ProtocolVersion = 0;
 
 
         public void Start(int port)
         {
-            clients = new Dictionary<int, Client>();
-
             Telepathy.Logger.Log = msg => Console.WriteLine("Telepathy: " + msg);
             Telepathy.Logger.LogWarning = msg => Console.WriteLine("Telepathy: " + msg);
             Telepathy.Logger.LogError = msg => Console.WriteLine("Telepathy: " + msg);
+
+
+            Clients = new Dictionary<int, ServerClient>();
+            Channels = new Dictionary<int, ServerChannel>()
+            {
+                { 1, new ServerChannel(1, 0, "New Channel", ServerChannel.ChannelType.Both) }
+            };
 
             // create and start the server
             tcpServer = new Telepathy.Server();
@@ -28,6 +34,24 @@ namespace EtcordSharp
 
             Receive();
         }
+
+
+        public void SendPacket<T>(ServerClient client, PacketType packetType, T packet) where T : IPacketStruct
+        {
+            SendData(client.ConnectionId, PacketSerializer.SerializePacket(packetType, packet));
+        }
+        private void SendData(int connectionId, byte[] data)
+        {
+            tcpServer.Send(connectionId, data);
+        }
+
+        public void DisconnectClient(ServerClient client)
+        {
+            tcpServer.Disconnect(client.ConnectionId);
+        }
+
+
+        #region Message receive
 
         private void Receive()
         {
@@ -56,23 +80,23 @@ namespace EtcordSharp
         {
             Console.WriteLine(msg.connectionId + " Connected");
 
-            Client client = new Client(this, msg.connectionId);
-            clients.Add(msg.connectionId, client);
+            ServerClient client = new ServerClient(this, msg.connectionId);
+            Clients.Add(msg.connectionId, client);
         }
 
         private void OnClientDisconnected(Telepathy.Message msg)
         {
             Console.WriteLine(msg.connectionId + " Disconnected");
 
-            clients.Remove(msg.connectionId);
+            Clients.Remove(msg.connectionId);
         }
 
         private void OnClientData(Telepathy.Message msg)
         {
             Console.WriteLine(msg.connectionId + " Sent data");
             
-            Client client;
-            if (clients.TryGetValue(msg.connectionId, out client))
+            ServerClient client;
+            if (Clients.TryGetValue(msg.connectionId, out client))
             {
                 byte[] response = PacketSerializer.ReceivePacket(client, msg.data);
                 if (response != null)
@@ -82,19 +106,6 @@ namespace EtcordSharp
             }
         }
 
-
-        public void SendPacket<T>(Client client, PacketType packetType, T packet) where T : IPacketStruct
-        {
-            SendData(client.connectionId, PacketSerializer.SerializePacket(packetType, packet));
-        }
-        private void SendData(int connectionId, byte[] data)
-        {
-            tcpServer.Send(connectionId, data);
-        }
-
-        public void DisconnectClient(Client client)
-        {
-            tcpServer.Disconnect(client.connectionId);
-        }
+        #endregion Message receive
     }
 }

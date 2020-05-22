@@ -1,57 +1,122 @@
 ﻿using EtcordSharp.Packets;
-using EtcordSharp.Packets.Attributes;
 using EtcordSharp.Packets.Structs;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace EtcordSharp.Client
 {
-    public class Client
+    public partial class Client
     {
-        private Telepathy.Client tcpClient;
-        private Thread clientThread;
-
         private const int ProtocolVersion = 0;
 
+        public enum ClientState
+        {
+            Unconnected,
+            Handshaking,
+            Login,
+            Connected,
+        }
 
-        public void Connect(string address, int port)
+        private ClientState state;
+        public ClientState State
+        {
+            get { return state; }
+            private set
+            {
+                state = value;
+                OnClientStateChanged?.Invoke(value);
+            }
+        }
+        public string Username { get; private set; }
+
+        public Dictionary<int, Channel> Channels { get; private set; }
+
+        public Action<ClientState> OnClientStateChanged;
+        public Action<Channel> OnChannelUpdated;
+
+        private Telepathy.Client tcpClient;
+        private int clientID;
+
+
+        public Client()
         {
             Telepathy.Logger.Log = msg => Console.WriteLine("Telepathy: " + msg);
             Telepathy.Logger.LogWarning = msg => Console.WriteLine("Telepathy: " + msg);
             Telepathy.Logger.LogError = msg => Console.WriteLine("Telepathy: " + msg);
 
-            // create and connect the client
-            tcpClient = new Telepathy.Client();
-            tcpClient.Connect(address, port);
+            Channels = new Dictionary<int, Channel>();
 
+            tcpClient = new Telepathy.Client();
+            State = ClientState.Unconnected;
+        }
+
+
+
+        public void Connect(string address, int port)
+        {
             Console.WriteLine("Connecting");
 
-            if (clientThread == null)
+            Connect(address, port, Username);
+        }
+        public void Connect(string address, int port, string username)
+        {
+            Console.WriteLine("Connecting");
+
+            tcpClient.Connect(address, port);
+            Username = username;
+        }
+
+        public void SendPacket<T>(PacketType packetType, T packet) where T : IPacketStruct
+        {
+            tcpClient.Send(PacketSerializer.SerializePacket(packetType, packet));
+        }
+        public void SendEvent(PacketType packetType)
+        {
+            tcpClient.Send(PacketSerializer.SerializeEvent(packetType));
+        }
+
+        public void Disconnect()
+        {
+            tcpClient.Disconnect();
+            State = ClientState.Unconnected;
+            Username = "";
+        }
+
+
+
+        public void SetUsername(string name)
+        {
+            Username = name;
+            if (State == ClientState.Login)
             {
-                clientThread = new Thread(() => { Receive(); });
-                clientThread.Start();
+                SendPacket(PacketType.Login, new Login()
+                {
+                    Username = name,
+                });
             }
         }
 
-        private void Receive()
+
+
+        #region Message receive
+
+        public void Receive()
         {
             Telepathy.Message msg;
-            while (true)
+            if (tcpClient.GetNextMessage(out msg))
             {
-                if (tcpClient.GetNextMessage(out msg))
+                switch (msg.eventType)
                 {
-                    switch (msg.eventType)
-                    {
-                        case Telepathy.EventType.Connected:
-                            OnClientConnected(msg);
-                            break;
-                        case Telepathy.EventType.Disconnected:
-                            OnClientDisconnected(msg);
-                            break;
-                        case Telepathy.EventType.Data:
-                            OnClientData(msg);
-                            break;
-                    }
+                    case Telepathy.EventType.Connected:
+                        OnClientConnected(msg);
+                        break;
+                    case Telepathy.EventType.Disconnected:
+                        OnClientDisconnected(msg);
+                        break;
+                    case Telepathy.EventType.Data:
+                        OnClientData(msg);
+                        break;
                 }
             }
         }
@@ -60,6 +125,7 @@ namespace EtcordSharp.Client
         {
             Console.WriteLine(msg.connectionId + " Connected");
 
+            State = ClientState.Handshaking;
             tcpClient.Send(PacketSerializer.SerializePacket(PacketType.Handshake, new Packets.Structs.Handshake
             {
                 protocolVersion = ProtocolVersion,
@@ -79,18 +145,6 @@ namespace EtcordSharp.Client
             PacketSerializer.ReceivePacket(this, msg.data);
         }
 
-
-        #region Packet receivers
-        
-        [PacketReceiver(PacketType.Handshake)]
-        public void Handshake(Handshake handshake)
-        {
-            Console.WriteLine("Handshake");
-
-            Console.WriteLine(handshake.protocolVersion);
-            Console.WriteLine(handshake.nextState);
-        }
-
-        #endregion
+        #endregion Message Receive
     }
 }

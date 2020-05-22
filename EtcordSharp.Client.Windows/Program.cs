@@ -14,12 +14,9 @@ namespace EtcordSharp.Client.Windows
         [STAThread]
         static void Main()
         {
-            Client client = new Client();
-            client.Connect("localhost", 3879);
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form());
+            Application.Run(new MainForm());
         }
     }
 }

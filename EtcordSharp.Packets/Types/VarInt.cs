@@ -7,6 +7,11 @@ namespace EtcordSharp.Packets.Types
         public int Value { get; private set; }
 
 
+        public VarInt(int value)
+        {
+            Value = value;
+        }
+
         public int GetSize()
         {
             int size = 0;
@@ -24,7 +29,7 @@ namespace EtcordSharp.Packets.Types
 
             return size;
         }
-        public void Deserialize(byte[] bytes, ref int position)
+        public bool Deserialize(byte[] bytes, ref int position)
         {
             int numRead = 0;
             Value = 0;
@@ -38,11 +43,13 @@ namespace EtcordSharp.Packets.Types
                 if (numRead > 5)
                 {
                     Console.WriteLine("Error: VarInt is too big");
-                    return;
+                    return false;
                 }
             } while ((read & 0b10000000) != 0);
+
+            return true;
         }
-        public void Serialize(byte[] bytes, ref int position)
+        public bool Serialize(byte[] bytes, ref int position)
         {
             uint val = (uint)Value;
             do
@@ -55,6 +62,8 @@ namespace EtcordSharp.Packets.Types
                 }
                 bytes[position++] = temp;
             } while (val != 0);
+
+            return true;
         }
 
         public static implicit operator int(VarInt v) => v.Value;

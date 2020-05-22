@@ -1,7 +1,7 @@
 ﻿using EtcordSharp.Packets;
 using System;
 
-namespace EtcordSharp
+namespace EtcordSharp.Server
 {
     class Program
     {

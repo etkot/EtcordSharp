@@ -4,10 +4,10 @@ using System.Text;
 
 namespace EtcordSharp.Packets
 {
-    public interface IPacketSerializable
+    interface IPacketSerializable
     {
-        void Serialize(byte[] bytes, ref int position);
-        void Deserialize(byte[] bytes, ref int position);
+        bool Serialize(byte[] bytes, ref int position);
+        bool Deserialize(byte[] bytes, ref int position);
         int GetSize();
     }
     public interface IPacketStruct { }

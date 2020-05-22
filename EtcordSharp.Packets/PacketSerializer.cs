@@ -53,26 +53,40 @@ namespace EtcordSharp.Packets
             MethodInfo method;
             if (methods.TryGetValue((PacketType)packetType, out method))
             {
-                Type structure = method.GetParameters()[0].ParameterType;
-                FieldInfo[] fields = structure.GetFields();
-                object obj = Activator.CreateInstance(structure);
-                
-                // Deserialize structure fields
-                for (int i = 0; i < fields.Length; i++)
+                // Method return object
+                object ret;
+
+                // Check if the method requires a parameter
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length > 0)
                 {
-                    object value;
-                    if (!Deserialize(fields[i].FieldType, data, ref position, out value))
-                    {
-                        Console.WriteLine("Error: Unsupported type \"" + fields[i].FieldType.FullName + "\"");
-                        return null;
-                    }
-
-                    fields[i].SetValue(obj, value);
-                }
+                    Type structure = parameters[0].ParameterType;
+                    FieldInfo[] fields = structure.GetFields();
+                    object obj = Activator.CreateInstance(structure);
                 
-                // Call the method
-                object ret = method.Invoke(recipient, new object[1] { obj });
+                    // Deserialize structure fields
+                    for (int i = 0; i < fields.Length; i++)
+                    {
+                        object value;
+                        if (!Deserialize(fields[i].FieldType, data, ref position, out value))
+                        {
+                            Console.WriteLine("Error: Unsupported type \"" + fields[i].FieldType.FullName + "\"");
+                            return null;
+                        }
 
+                        fields[i].SetValue(obj, value);
+                    }
+                
+                    // Call the method
+                    ret = method.Invoke(recipient, new object[1] { obj });
+                }
+                else
+                {
+                    // Call the method without the parameter
+                    ret = method.Invoke(recipient, null);
+                }
+
+                // If the method returned a packet struct send it as a response
                 if (ret != null && ret.GetType().GetInterfaces().Contains(typeof(IPacketStruct)))
                 {
                     return (byte[])SerializePacketInfo.MakeGenericMethod(new[] { ret.GetType() }).Invoke(null, new[] { (PacketType)packetType, ret });
@@ -111,13 +125,23 @@ namespace EtcordSharp.Packets
 
             return bytes;
         }
+        public static byte[] SerializeEvent(PacketType type)
+        {
+            byte[] bytes = new byte[GetObjectSize(type)];
+            int position = 0;
+
+            // Write packet type
+            if (!Serialize(type, bytes, ref position)) Console.WriteLine("Error: Packet serialization error");
+
+            return bytes;
+        }
 
 
-        private static bool Serialize<T>(T value, byte[] data, ref int position)
+        public static bool Serialize<T>(T value, byte[] data, ref int position)
         {
             return Serialize(typeof(T), value, data, ref position);
         }
-        private static bool Serialize(Type type, object value, byte[] data, ref int position)
+        public static bool Serialize(Type type, object value, byte[] data, ref int position)
         {
             if (type == typeof(byte))
             {
@@ -126,7 +150,7 @@ namespace EtcordSharp.Packets
             }
             else if (type.GetInterfaces().Contains(typeof(IPacketSerializable)))
             {
-                ((IPacketSerializable)value).Serialize(data, ref position);
+                return ((IPacketSerializable)value).Serialize(data, ref position);
             }
             else if (type.IsEnum)
             {
@@ -201,7 +225,15 @@ namespace EtcordSharp.Packets
             return true;
         }
 
-        private static bool Deserialize(Type type, byte[] data, ref int position, out object value)
+        public static bool Deserialize<T>(byte[] data, ref int position, out T value)
+        {
+            object obj;
+            bool ret = Deserialize(typeof(T), data, ref position, out obj);
+
+            value = (T)obj;
+            return ret;
+        }
+        public static bool Deserialize(Type type, byte[] data, ref int position, out object value)
         {
             if (type == typeof(byte))
             {
@@ -319,11 +351,11 @@ namespace EtcordSharp.Packets
             }
             return size;
         }
-        private static int GetObjectSize<T>(T obj)
+        public static int GetObjectSize<T>(T obj)
         {
             return GetObjectSize(obj, typeof(T));
         }
-        private static int GetObjectSize(object obj, Type type)
+        public static int GetObjectSize(object obj, Type type)
         {
             int size;
             if (TypeSizes.TryGetValue(type, out size))
