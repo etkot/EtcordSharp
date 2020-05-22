@@ -1,5 +1,5 @@
 ﻿using EtcordSharp.Packets;
-using EtcordSharp.Packets.Structs;
+using EtcordSharp.Packets.Packets;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -126,10 +126,10 @@ namespace EtcordSharp.Client
             Console.WriteLine(msg.connectionId + " Connected");
 
             State = ClientState.Handshaking;
-            tcpClient.Send(PacketSerializer.SerializePacket(PacketType.Handshake, new Packets.Structs.Handshake
+            tcpClient.Send(PacketSerializer.SerializePacket(PacketType.Handshake, new Packets.Packets.Handshake
             {
                 protocolVersion = ProtocolVersion,
-                nextState = Packets.Structs.Handshake.NextState.Login,
+                nextState = Packets.Packets.Handshake.NextState.Login,
             }));
         }
 

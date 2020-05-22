@@ -1,6 +1,6 @@
 ﻿using EtcordSharp.Packets;
 using EtcordSharp.Packets.Attributes;
-using EtcordSharp.Packets.Structs;
+using EtcordSharp.Packets.Packets;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,7 +16,7 @@ namespace EtcordSharp.Client
 
             State = ClientState.Login;
 
-            if (handshake.nextState == Packets.Structs.Handshake.NextState.Login && Username != "")
+            if (handshake.nextState == Packets.Packets.Handshake.NextState.Login && Username != "")
             {
                 SetUsername(Username);
             }

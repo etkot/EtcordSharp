@@ -28,7 +28,8 @@ namespace EtcordSharp.Server
         public ServerClient(Server server, int connectionId)
         {
             this.server = server;
-            this.ConnectionId = connectionId;
+
+            ConnectionId = connectionId;
             State = ClientState.Handshaking;
         }
 
@@ -51,7 +52,7 @@ namespace EtcordSharp.Server
         #region Packet receivers
         
         [PacketReceiver(PacketType.Handshake)]
-        public Packets.Structs.Handshake? Handshake(Packets.Structs.Handshake handshake)
+        public Packets.Packets.Handshake? Handshake(Packets.Packets.Handshake handshake)
         {
             Console.WriteLine("Handshake");
             
@@ -59,18 +60,18 @@ namespace EtcordSharp.Server
             {
                 State = ClientState.Login;
 
-                return new Packets.Structs.Handshake()
+                return new Packets.Packets.Handshake
                 {
                     protocolVersion = Server.ProtocolVersion,
-                    nextState = Packets.Structs.Handshake.NextState.Login,
+                    nextState = Packets.Packets.Handshake.NextState.Login,
                 };
             }
             else
             {
-                SendPacket(PacketType.Handshake, new Packets.Structs.Handshake()
+                SendPacket(PacketType.Handshake, new Packets.Packets.Handshake
                 {
                     protocolVersion = Server.ProtocolVersion,
-                    nextState = Packets.Structs.Handshake.NextState.None,
+                    nextState = Packets.Packets.Handshake.NextState.None,
                 });
 
                 Disconnect();
@@ -80,7 +81,7 @@ namespace EtcordSharp.Server
         }
         
         [PacketReceiver(PacketType.Login)]
-        public Packets.Structs.Login Login(Packets.Structs.Login login)
+        public Packets.Packets.Login Login(Packets.Packets.Login login)
         {
             Username = login.Username.Value;
             if (Username.Length > UsernameCharacterLimit)
@@ -90,7 +91,7 @@ namespace EtcordSharp.Server
 
             Console.WriteLine("Login \"" + Username + "\"");
 
-            return new Packets.Structs.Login()
+            return new Packets.Packets.Login
             {
                 Username = Username,
                 ClientID = ConnectionId,
@@ -105,39 +106,84 @@ namespace EtcordSharp.Server
         */
 
         [PacketReceiver(PacketType.GetChannels)]
-        public Packets.Structs.GetChannels GetChannels()
+        public Packets.Packets.GetChannels GetChannels()
         {
-            Packets.Structs.GetChannels getChannels = new Packets.Structs.GetChannels(server.Channels.Count);
+            Packets.Packets.GetChannels getChannels = new Packets.Packets.GetChannels(server.Channels.Count);
 
             int i = 0;
             foreach (KeyValuePair<int, ServerChannel> channel in server.Channels)
             {
-                Packets.Types.Data.ChannelData channelData = new Packets.Types.Data.ChannelData()
-                {
-                    ChannelID = channel.Value.ChannelID,
-                    ParentID = channel.Value.ParentID,
-                    Name = channel.Value.Name,
-                    type = (Packets.Types.Data.ChannelData.ChannelType)channel.Value.Type,
-                };
-
-                getChannels.channels[i] = channelData;
-                i++;
+                getChannels.channels[i++] = channel.Value.GetChannelData();
             }
 
             return getChannels;
         }
 
+        [PacketReceiver(PacketType.GetChatHistory)]
+        public Packets.Packets.GetChatHistory GetChatHistory(Packets.Packets.GetChatHistory getChatHistory)
+        {
+            ServerChannel channel;
+            if (server.Channels.TryGetValue(getChatHistory.channelID, out channel))
+            {
+                // Channel found
+                // Get messages
+                List<Packets.Types.Data.MessageData> messages = new List<Packets.Types.Data.MessageData>();
+                foreach (KeyValuePair<int, ServerMessage> message in channel.Messages)
+                {
+                    if (message.Key < getChatHistory.offsetID)
+                        continue;
+                    if (messages.Count >= getChatHistory.count)
+                        break;
+
+                    messages.Add(message.Value.GetMessageData());
+                }
+
+                // Send messages
+                return new Packets.Packets.GetChatHistory
+                {
+                    channelID = channel.ChannelID,
+                    count = messages.Count,
+                    offsetID = getChatHistory.offsetID,
+                    messages = messages.ToArray(),
+                };
+            }
+            else
+            {
+                // Channel not found
+                // Inform the client
+                return new Packets.Packets.GetChatHistory
+                {
+                    channelID = getChatHistory.channelID,
+                    count = -1, // No channel
+                    offsetID = 0,
+                    // messages = EMPTY ARRAY
+                };
+            }
+        }
+
+        [PacketReceiver(PacketType.ChatMessage)]
+        public Packets.Packets.ChatMessage? ChatMessage(Packets.Packets.ChatMessage chatMessage)
+        {
+            ServerChannel channel;
+            if (server.Channels.TryGetValue(chatMessage.channelID, out channel))
+            {
+                // Channel found
+                channel.SendMessage(this, chatMessage.message.Content);
+                return null;
+            }
+            else
+            {
+                // Channel not found
+                // Inform the client
+                return new Packets.Packets.ChatMessage
+                {
+                    channelID = -1,
+                    message = chatMessage.message
+                };
+            }
+        }
+
         /*
-        public void GetChatHistory(DataReader obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ChatMessage(DataReader obj)
-        {
-            throw new NotImplementedException();
-        }
-
         public void VoiceChannelJoin(DataReader obj)
         {
             throw new NotImplementedException();

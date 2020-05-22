@@ -1,7 +1,7 @@
 ﻿using EtcordSharp.Packets.Types;
 using EtcordSharp.Packets.Types.Data;
 
-namespace EtcordSharp.Packets.Structs
+namespace EtcordSharp.Packets.Packets
 {
     public struct GetChannels : IPacketStruct
     {

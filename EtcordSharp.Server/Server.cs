@@ -25,7 +25,7 @@ namespace EtcordSharp.Server
             Clients = new Dictionary<int, ServerClient>();
             Channels = new Dictionary<int, ServerChannel>()
             {
-                { 1, new ServerChannel(1, 0, "New Channel", ServerChannel.ChannelType.Both) }
+                { 1, new ServerChannel(this, 1, 0, "New Channel", ServerChannel.ChannelType.Both) }
             };
 
             // create and start the server
@@ -35,7 +35,14 @@ namespace EtcordSharp.Server
             Receive();
         }
 
-
+        public void SendPacketToConnected<T>(PacketType packetType, T packet) where T : IPacketStruct
+        {
+            foreach (KeyValuePair<int, ServerClient> client in Clients)
+            {
+                if (client.Value.State == ServerClient.ClientState.Connected)
+                    SendData(client.Key, PacketSerializer.SerializePacket(packetType, packet));
+            }
+        }
         public void SendPacket<T>(ServerClient client, PacketType packetType, T packet) where T : IPacketStruct
         {
             SendData(client.ConnectionId, PacketSerializer.SerializePacket(packetType, packet));

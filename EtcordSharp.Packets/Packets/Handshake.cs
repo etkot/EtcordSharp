@@ -1,7 +1,7 @@
 ﻿using EtcordSharp.Packets.Attributes;
 using EtcordSharp.Packets.Types;
 
-namespace EtcordSharp.Packets.Structs
+namespace EtcordSharp.Packets.Packets
 {
     public struct Handshake : IPacketStruct
     {
