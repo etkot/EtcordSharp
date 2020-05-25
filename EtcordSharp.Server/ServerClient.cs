@@ -2,6 +2,7 @@
 using EtcordSharp.Packets.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Text;
 
 namespace EtcordSharp.Server
@@ -24,6 +25,7 @@ namespace EtcordSharp.Server
 
         public string Username { get; private set; }
         public ServerChannel VoiceChannel { get; private set; }
+        public UdpClient VoiceClient { get; private set; }
 
 
         public ServerClient(Server server, int connectionId)

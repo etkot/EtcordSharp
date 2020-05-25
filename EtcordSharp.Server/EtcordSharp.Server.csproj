@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EtcordSharp.Packets\EtcordSharp.Packets.csproj" />
+    <ProjectReference Include="..\EtcordSharp\EtcordSharp.csproj" />
   </ItemGroup>
 
 </Project>
