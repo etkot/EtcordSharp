@@ -68,5 +68,7 @@ namespace EtcordSharp.Packets.Types
 
         public static implicit operator int(VarInt v) => v.Value;
         public static implicit operator VarInt(int i) => new VarInt { Value = i };
+
+        public override string ToString() => Value.ToString();
     }
 }

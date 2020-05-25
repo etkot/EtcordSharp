@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EtcordSharp.Packets;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -61,6 +62,38 @@ namespace EtcordSharp.Server
                 channelID = ChannelID,
                 message = message.GetMessageData(),
             });
+        }
+
+        public bool JoinVoice(ServerClient client)
+        {
+            if (Type == ChannelType.VoiceChat || Type == ChannelType.Both)
+            {
+                VoiceClients.Add(client);
+
+                server.SendPacketToConnected(PacketType.VoiceChannelJoin, new Packets.Packets.VoiceChannelJoin
+                {
+                    channelID = ChannelID,
+                    userID = client.ConnectionId,
+                });
+
+                return true;
+            }
+
+            return false;
+        }
+        public bool LeaveVoice(ServerClient client)
+        {
+            if (VoiceClients.Contains(client))
+            {
+                server.SendPacketToConnected(PacketType.VoiceChannelLeave, new Packets.Packets.VoiceChannelLeave
+                {
+                    channelID = ChannelID,
+                    userID = client.ConnectionId,
+                    reason = Packets.Packets.VoiceChannelLeave.LeaveReason.Left,
+                });
+            }
+
+            return false;
         }
     }
 }

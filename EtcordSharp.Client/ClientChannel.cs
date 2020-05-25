@@ -22,6 +22,7 @@ namespace EtcordSharp.Client
         public ChannelType Type { get; private set; }
 
         public Dictionary<int, ClientMessage> Messages { get; private set; }
+        public Dictionary<int, ClientUser> VoiceUsers { get; private set; }
 
 
         public ClientChannel(Client client, int id, ClientChannel parent, string name, ChannelType type)
@@ -34,6 +35,7 @@ namespace EtcordSharp.Client
             Type = type;
 
             Messages = new Dictionary<int, ClientMessage>();
+            VoiceUsers = new Dictionary<int, ClientUser>();
         }
 
         public void ClearMessages()

@@ -1,11 +1,9 @@
-﻿using EtcordSharp.Packets.Attributes;
-using EtcordSharp.Packets.Types;
+﻿using EtcordSharp.Packets.Types.Data;
 
 namespace EtcordSharp.Packets.Packets
 {
     public struct Login : IPacketStruct
     {
-        public String Username;
-        public VarInt ClientID;
+        public UserData user;
     }
 }

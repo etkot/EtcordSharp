@@ -28,17 +28,24 @@ namespace EtcordSharp.Client
                 OnClientStateChanged?.Invoke(value);
             }
         }
-        public string Username { get; private set; }
+        public ClientUser User { get; private set; }
 
+        public Dictionary<int, ClientUser> Users { get; private set; }
         public Dictionary<int, ClientChannel> Channels { get; private set; }
 
         public Action<ClientState> OnClientStateChanged;
         public Action<ClientChannel> OnChannelAdded;
         public Action<ClientChannel> OnChannelUpdated;
         public Action<ClientMessage> OnMessageAdded;
+        public Action<ClientUser> OnUserAdded;
+        public Action<ClientUser> OnUserUpdated;
+        public Action<ClientUser, ClientChannel> OnUserJoinVoice;
+        public Action<ClientUser, ClientChannel> OnUserLeaveVoice;
 
         private Telepathy.Client tcpClient;
         private int clientID;
+
+        private string usernameToRequest;
 
 
         public Client()
@@ -47,6 +54,7 @@ namespace EtcordSharp.Client
             Telepathy.Logger.LogWarning = msg => Console.WriteLine("Telepathy: " + msg);
             Telepathy.Logger.LogError = msg => Console.WriteLine("Telepathy: " + msg);
 
+            Users = new Dictionary<int, ClientUser>();
             Channels = new Dictionary<int, ClientChannel>();
 
             tcpClient = new Telepathy.Client();
@@ -59,14 +67,14 @@ namespace EtcordSharp.Client
         {
             Console.WriteLine("Connecting");
 
-            Connect(address, port, Username);
+            Connect(address, port, usernameToRequest);
         }
         public void Connect(string address, int port, string username)
         {
             Console.WriteLine("Connecting");
 
             tcpClient.Connect(address, port);
-            Username = username;
+            usernameToRequest = username;
         }
 
         public void SendPacket<T>(PacketType packetType, T packet) where T : IPacketStruct
@@ -82,19 +90,21 @@ namespace EtcordSharp.Client
         {
             tcpClient.Disconnect();
             State = ClientState.Unconnected;
-            Username = "";
+            usernameToRequest = "";
+            
+            Users = new Dictionary<int, ClientUser>();
+            Channels = new Dictionary<int, ClientChannel>();
         }
 
 
 
-        public void SetUsername(string name)
+        public void SendLogin(string name)
         {
-            Username = name;
             if (State == ClientState.Login)
             {
                 SendPacket(PacketType.Login, new Login()
                 {
-                    Username = name,
+                    user = { name = name },
                 });
             }
         }
@@ -110,6 +120,31 @@ namespace EtcordSharp.Client
                 {
                     Content = content
                 }
+            });
+        }
+
+
+
+        public void JoinVoiceChannel(ClientChannel channel)
+        {
+            Console.WriteLine(channel.Name);
+            if (User.voiceChannel == channel)
+                return;
+
+            SendPacket(PacketType.VoiceChannelJoin, new VoiceChannelJoin
+            {
+                channelID = channel.ChannelID
+            });
+        }
+
+        public void LeaveVoiceChannel()
+        {
+            if (User.voiceChannel == null)
+                return;
+
+            SendPacket(PacketType.VoiceChannelLeave, new VoiceChannelLeave
+            {
+                channelID = User.voiceChannel.ChannelID,
             });
         }
 

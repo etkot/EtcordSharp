@@ -23,6 +23,7 @@ namespace EtcordSharp.Server
         public ClientState State { get; private set; }
 
         public string Username { get; private set; }
+        public ServerChannel VoiceChannel { get; private set; }
 
 
         public ServerClient(Server server, int connectionId)
@@ -37,7 +38,16 @@ namespace EtcordSharp.Server
         {
 
         }
-        
+
+        public Packets.Types.Data.UserData GetClientData()
+        {
+            return new Packets.Types.Data.UserData
+            {
+                userID = ConnectionId,
+                name = Username,
+            };
+        }
+
         public void SendPacket<T>(PacketType packetType, T packet) where T : IPacketStruct
         {
             server.SendPacket(this, packetType, packet);
@@ -83,7 +93,7 @@ namespace EtcordSharp.Server
         [PacketReceiver(PacketType.Login)]
         public Packets.Packets.Login Login(Packets.Packets.Login login)
         {
-            Username = login.Username.Value;
+            Username = login.user.name;
             if (Username.Length > UsernameCharacterLimit)
                 Username = Username.Substring(0, UsernameCharacterLimit);
 
@@ -93,17 +103,32 @@ namespace EtcordSharp.Server
 
             return new Packets.Packets.Login
             {
-                Username = Username,
-                ClientID = ConnectionId,
+                user =
+                {
+                    name = Username,
+                    userID = ConnectionId,
+                }
             };
         }
-
-        /*
-        public void GetClients(DataReader obj)
+        
+        [PacketReceiver(PacketType.GetClients)]
+        public Packets.Packets.GetUsers GetClients (Packets.Packets.GetUsers getUsers)
         {
-            throw new NotImplementedException();
+            List<Packets.Types.Data.UserData> userDatas = new List<Packets.Types.Data.UserData>();
+            foreach (Packets.Types.Data.UserData userData in getUsers.users)
+            {
+                ServerClient client;
+                if (server.Clients.TryGetValue(userData.userID, out client))
+                {
+                    userDatas.Add(client.GetClientData());
+                }
+            }
+
+            return new Packets.Packets.GetUsers
+            {
+                users = userDatas.ToArray()
+            };
         }
-        */
 
         [PacketReceiver(PacketType.GetChannels)]
         public Packets.Packets.GetChannels GetChannels()
@@ -184,18 +209,51 @@ namespace EtcordSharp.Server
                 };
             }
         }
-
-        /*
-        public void VoiceChannelJoin(DataReader obj)
+        
+        [PacketReceiver(PacketType.VoiceChannelJoin)]
+        public Packets.Packets.VoiceChannelJoin? VoiceChannelJoin(Packets.Packets.VoiceChannelJoin voiceChannelJoin)
         {
-            throw new NotImplementedException();
+            ServerChannel channel;
+            if (server.Channels.TryGetValue(voiceChannelJoin.channelID, out channel))
+            {
+                if (channel.JoinVoice(this))
+                {
+                    VoiceChannel = channel;
+                    return null;
+                }
+                else
+                {
+                    return new Packets.Packets.VoiceChannelJoin
+                    {
+                        channelID = channel.ChannelID,
+                        userID = -1,
+                    };
+                }
+            }
+            else
+            {
+                return new Packets.Packets.VoiceChannelJoin
+                {
+                    channelID = -1
+                };
+            }
         }
 
-        public void VoiceChannelLeave(DataReader obj)
+        [PacketReceiver(PacketType.VoiceChannelLeave)]
+        public Packets.Packets.VoiceChannelLeave? VoiceChannelLeave(Packets.Packets.VoiceChannelLeave voiceChannelLeave)
         {
-            throw new NotImplementedException();
+            if (VoiceChannel == null)
+            {
+                return new Packets.Packets.VoiceChannelLeave
+                {
+                    channelID = -1,
+                };
+            }
+
+            VoiceChannel.LeaveVoice(this);
+            VoiceChannel = null;
+            return null;
         }
-        */
 
         #endregion Packet receivers
     }

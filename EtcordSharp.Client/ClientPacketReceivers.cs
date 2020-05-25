@@ -1,6 +1,7 @@
 ﻿using EtcordSharp.Packets;
 using EtcordSharp.Packets.Attributes;
 using EtcordSharp.Packets.Packets;
+using EtcordSharp.Packets.Types.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,25 +11,26 @@ namespace EtcordSharp.Client
     public partial class Client
     {
         [PacketReceiver(PacketType.Handshake)]
-        public void Handshake(Handshake handshake)
+        public void ReceiveHandshake(Handshake handshake)
         {
             Console.WriteLine("Handshake");
 
             State = ClientState.Login;
 
-            if (handshake.nextState == Packets.Packets.Handshake.NextState.Login && Username != "")
+            if (handshake.nextState == Packets.Packets.Handshake.NextState.Login && usernameToRequest != "")
             {
-                SetUsername(Username);
+                SendLogin(usernameToRequest);
             }
         }
 
         [PacketReceiver(PacketType.Login)]
-        public void Login(Login login)
+        public void ReceiveLogin(Login login)
         {
             Console.WriteLine("Login");
-
-            Username = login.Username;
-            clientID = login.ClientID;
+            
+            User = new ClientUser(login.user);
+            User.SetLocal(true);
+            Users.Add(User.UserID, User);
 
             State = ClientState.Connected;
 
@@ -38,8 +40,34 @@ namespace EtcordSharp.Client
 
 
 
+        [PacketReceiver(PacketType.GetClients)]
+        public void ReceiveGetClients(GetUsers getClients)
+        {
+            Console.WriteLine("GetClients");
+
+            for (int i = 0; i < getClients.users.Length; i++)
+            {
+                Packets.Types.Data.UserData data = getClients.users[i];
+
+                ClientUser user;
+                if (Users.TryGetValue(data.userID, out user))
+                {
+                    user.SetName(data.name);
+
+                    OnUserUpdated?.Invoke(user);
+                }
+                else
+                {
+                    user = new ClientUser(data);
+                    Users.Add(user.UserID, user);
+
+                    OnUserAdded?.Invoke(user);
+                }
+            }
+        }
+
         [PacketReceiver(PacketType.GetChannels)]
-        public void GetChannels(GetChannels getChannels)
+        public void ReceiveGetChannels(GetChannels getChannels)
         {
             Console.WriteLine("GetChannels");
 
@@ -60,7 +88,7 @@ namespace EtcordSharp.Client
 
 
         [PacketReceiver(PacketType.GetChatHistory)]
-        public void GetChatHistory(GetChatHistory getChatHistory)
+        public void ReceiveGetChatHistory(GetChatHistory getChatHistory)
         {
             Console.WriteLine("GetChatHistory");
 
@@ -80,7 +108,7 @@ namespace EtcordSharp.Client
         }
 
         [PacketReceiver(PacketType.ChatMessage)]
-        public void ChatMessage(ChatMessage chatMessage)
+        public void ReceiveChatMessage(ChatMessage chatMessage)
         {
             Console.WriteLine("ChatMessage");
 
@@ -93,6 +121,87 @@ namespace EtcordSharp.Client
             else
             {
                 Console.WriteLine("Warning: Server sent chat message to a channel that doesn't exist");
+            }
+        }
+
+
+
+        [PacketReceiver(PacketType.VoiceChannelJoin)]
+        public void ReceiveVoiceChannelJoin(VoiceChannelJoin voiceChannelJoin)
+        {
+            Console.WriteLine("VoiceChannelJoin");
+
+            if (voiceChannelJoin.channelID == -1)
+            {
+                Console.WriteLine("Warning: Invalid channel");
+                return;
+            }
+            if (voiceChannelJoin.userID == -1)
+            {
+                Console.WriteLine("Warning: Invalid permissions");
+                return;
+            }
+
+            ClientChannel channel;
+            if (Channels.TryGetValue(voiceChannelJoin.channelID, out channel))
+            {
+                Console.WriteLine("User count: " + Users.Count);
+
+                ClientUser user;
+                if (!Users.TryGetValue(voiceChannelJoin.userID, out user))
+                {
+                    SendPacket(PacketType.GetClients, new GetUsers(new UserData { userID = voiceChannelJoin.userID }));
+                    user = new ClientUser(voiceChannelJoin.userID, "unknown");
+
+                    foreach (KeyValuePair<int, ClientUser> userrrr in Users)
+                    {
+                        Console.WriteLine(userrrr.Value.UserID + "  " + voiceChannelJoin.userID);
+                    }
+                }
+
+                user.SetVoiceChannel(channel);
+                channel.VoiceUsers.Add(user.UserID, user);
+                OnUserJoinVoice?.Invoke(user, channel);
+            }
+            else
+            {
+                // TODO: GetChannels
+            }
+        }
+
+        [PacketReceiver(PacketType.VoiceChannelLeave)]
+        public void ReceiveVoiceChannelLeave(VoiceChannelLeave voiceChannelLeave)
+        {
+            Console.WriteLine("VoiceChannelLeave");
+
+            if (voiceChannelLeave.channelID == -1)
+            {
+                Console.WriteLine("Warning: Already left");
+                return;
+            }
+
+            ClientChannel channel;
+            if (Channels.TryGetValue(voiceChannelLeave.channelID, out channel))
+            {
+                ClientUser user;
+                if (!Users.TryGetValue(voiceChannelLeave.userID, out user))
+                {
+                    SendPacket(PacketType.GetClients, new GetUsers(new UserData { userID = voiceChannelLeave.userID }));
+                    user = new ClientUser(voiceChannelLeave.userID, "unknown");
+                }
+                else
+                {
+                    channel.VoiceUsers.Remove(user.UserID);
+                }
+
+                user.SetVoiceChannel(null);
+                OnUserLeaveVoice?.Invoke(user, channel);
+            }
+            else
+            {
+                // TODO: GetChannels
+
+                Console.WriteLine("Channel not found " + voiceChannelLeave.channelID);
             }
         }
     }

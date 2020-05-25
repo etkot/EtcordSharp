@@ -17,6 +17,7 @@ namespace EtcordSharp.Client.Windows
 
         private ClientChannel selectedChannel = null;
         private Dictionary<ClientChannel, TreeNode> channelNodes;
+        private Dictionary<ClientUser, TreeNode> userNodes;
 
 
         public MainForm()
@@ -31,6 +32,7 @@ namespace EtcordSharp.Client.Windows
             receiveTimer.Start();
 
             channelNodes = new Dictionary<ClientChannel, TreeNode>();
+            userNodes = new Dictionary<ClientUser, TreeNode>();
 
             InitializeClientEvents();
         }
@@ -64,10 +66,10 @@ namespace EtcordSharp.Client.Windows
         {
             if (channel == selectedChannel)
                 return;
-
+            
             selectedChannel = channel;
-            channel.GetChatHistory();
 
+            channel.GetChatHistory();
             chatBox.ResetText();
             foreach (KeyValuePair<int, ClientMessage> message in channel.Messages)
             {
@@ -81,9 +83,17 @@ namespace EtcordSharp.Client.Windows
         private void InitializeClientEvents()
         {
             client.OnClientStateChanged = OnClientStateChanged;
+
             client.OnChannelAdded = OnChannelAdded;
             client.OnChannelUpdated = OnChannelUpdated;
+
             client.OnMessageAdded = OnMessageAdded;
+
+            client.OnUserAdded = OnUserAdded;
+            client.OnUserUpdated = OnUserUpdated;
+
+            client.OnUserJoinVoice = OnUserJoinVoice;
+            client.OnUserLeaveVoice = OnUserLeaveVoice;
         }
 
         private void OnClientStateChanged(Client.ClientState newState)
@@ -103,7 +113,7 @@ namespace EtcordSharp.Client.Windows
         private void OnChannelAdded(ClientChannel channel)
         {
             TreeNode node;
-            string key = channel.ChannelID.ToString();
+            string key = "c" + channel.ChannelID.ToString();
             if (channel.Parent == null)
             {
                 node = treeViewChannels.Nodes.Add(key, channel.Name);
@@ -125,7 +135,6 @@ namespace EtcordSharp.Client.Windows
             treeViewChannels.ExpandAll();
             channelNodes.Add(channel, node);
         }
-
         private void OnChannelUpdated(ClientChannel channel)
         {
             treeViewChannels.Update();
@@ -136,6 +145,43 @@ namespace EtcordSharp.Client.Windows
             if (selectedChannel == message.Channel)
             {
                 chatBox.AppendText("\r\n<" + message.SenderName + "> " + message.Content);
+            }
+        }
+
+
+        private void OnUserAdded(ClientUser user)
+        {
+
+        }
+        private void OnUserUpdated(ClientUser user)
+        {
+            TreeNode node;
+            if (userNodes.TryGetValue(user, out node))
+            {
+                node.Text = user.Name;
+            }
+        }
+
+        private void OnUserJoinVoice(ClientUser user, ClientChannel channel)
+        {
+            TreeNode channelNode;
+            if (channelNodes.TryGetValue(channel, out channelNode))
+            {
+                string key = "u" + user.UserID.ToString();
+                TreeNode node = channelNode.Nodes.Add(key, user.Name);
+                userNodes.Add(user, node);
+
+                if (user.IsLocal)
+                    channelNode.Expand();
+            }
+        }
+        private void OnUserLeaveVoice(ClientUser user, ClientChannel channel)
+        {
+            TreeNode node;
+            if (userNodes.TryGetValue(user, out node))
+            {
+                node.Remove();
+                userNodes.Remove(user);
             }
         }
 
@@ -157,14 +203,29 @@ namespace EtcordSharp.Client.Windows
             }
         }
 
+        private void buttonLeave_Click(object sender, EventArgs e)
+        {
+            client.LeaveVoiceChannel();
+        }
+
         private void treeViewChannels_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            SelectChannel(client.Channels[int.Parse(treeViewChannels.SelectedNode.Name)]);
+            if (treeViewChannels.SelectedNode.Name[0] == 'c')
+            {
+                TreeNode node = treeViewChannels.SelectedNode;
+                string channelIDStr = node.Name.Substring(1, node.Name.Length - 1);
+                int channelID = int.Parse(channelIDStr);
+
+                SelectChannel(client.Channels[channelID]);
+            }
         }
 
         private void treeViewChannels_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            
+            if (treeViewChannels.SelectedNode.Bounds.Contains(e.Location))
+            {
+                client.JoinVoiceChannel(selectedChannel);
+            }
         }
 
         private void chatInputBox_KeyDown(object sender, KeyEventArgs e)

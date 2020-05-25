@@ -35,6 +35,7 @@
             this.buttonSend = new System.Windows.Forms.Button();
             this.panelChat = new System.Windows.Forms.Panel();
             this.treeViewChannels = new System.Windows.Forms.TreeView();
+            this.buttonLeave = new System.Windows.Forms.Button();
             this.panelConnectionControls.SuspendLayout();
             this.panelChat.SuspendLayout();
             this.SuspendLayout();
@@ -65,6 +66,7 @@
             // 
             this.panelConnectionControls.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelConnectionControls.Controls.Add(this.buttonLeave);
             this.panelConnectionControls.Controls.Add(this.buttonConnect);
             this.panelConnectionControls.Location = new System.Drawing.Point(10, 10);
             this.panelConnectionControls.Name = "panelConnectionControls";
@@ -111,12 +113,23 @@
             // 
             this.treeViewChannels.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.treeViewChannels.HideSelection = false;
             this.treeViewChannels.Location = new System.Drawing.Point(10, 45);
             this.treeViewChannels.Name = "treeViewChannels";
             this.treeViewChannels.Size = new System.Drawing.Size(163, 435);
             this.treeViewChannels.TabIndex = 7;
             this.treeViewChannels.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewChannels_AfterSelect);
             this.treeViewChannels.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.treeViewChannels_MouseDoubleClick);
+            // 
+            // buttonLeave
+            // 
+            this.buttonLeave.Location = new System.Drawing.Point(84, 3);
+            this.buttonLeave.Name = "buttonLeave";
+            this.buttonLeave.Size = new System.Drawing.Size(90, 23);
+            this.buttonLeave.TabIndex = 1;
+            this.buttonLeave.Text = "Leave channel";
+            this.buttonLeave.UseVisualStyleBackColor = true;
+            this.buttonLeave.Click += new System.EventHandler(this.buttonLeave_Click);
             // 
             // MainForm
             // 
@@ -145,6 +158,7 @@
         private System.Windows.Forms.Button buttonSend;
         private System.Windows.Forms.Panel panelChat;
         private System.Windows.Forms.TreeView treeViewChannels;
+        private System.Windows.Forms.Button buttonLeave;
     }
 }
 

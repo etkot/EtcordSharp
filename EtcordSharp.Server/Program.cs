@@ -11,6 +11,7 @@ namespace EtcordSharp.Server
 
             Server server = new Server();
             server.Start(3879);
+            //server.Start(25565);
         }
     }
 }
