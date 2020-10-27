@@ -17,7 +17,7 @@ namespace EtcordSharp.Packets
         ClientDisconnected = 0x11,
 
         // Client info requests
-        GetClients = 0x20,
+        GetUsers = 0x20,
         GetChannels = 0x21,
 
         // Text chat

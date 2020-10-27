@@ -54,7 +54,7 @@ namespace EtcordSharp.Client
         public void GetChatHistory()
         {
             ClearMessages();
-            client.SendPacket(Packets.PacketType.GetChatHistory, new Packets.Packets.GetChatHistory
+            client.SendPacket(new Packets.Packets.GetChatHistory
             {
                 channelID = ChannelID,
                 count = 100,

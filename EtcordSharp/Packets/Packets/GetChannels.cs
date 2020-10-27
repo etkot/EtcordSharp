@@ -4,7 +4,7 @@ using EtcordSharp.Packets.Types.Data;
 
 namespace EtcordSharp.Packets.Packets
 {
-    [Packet(Reliable = true)]
+    [Packet(PacketType.GetChannels, Reliable = true)]
     public struct GetChannels : IPacketStruct
     {
         public Array<ChannelData> channels;

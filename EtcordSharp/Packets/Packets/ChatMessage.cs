@@ -4,7 +4,7 @@ using EtcordSharp.Packets.Types.Data;
 
 namespace EtcordSharp.Packets.Packets
 {
-    [Packet(Reliable = true)]
+    [Packet(PacketType.ChatMessage, Reliable = true)]
     public struct ChatMessage : IPacketStruct
     {
         public VarInt channelID;

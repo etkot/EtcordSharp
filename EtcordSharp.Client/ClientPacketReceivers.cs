@@ -41,14 +41,14 @@ namespace EtcordSharp.Client
 
 
 
-        [PacketReceiver(PacketType.GetClients)]
-        public void ReceiveGetClients(GetUsers getClients)
+        [PacketReceiver(PacketType.GetUsers)]
+        public void ReceiveGetUsers(GetUsers getUsers)
         {
             Console.WriteLine("GetClients");
 
-            for (int i = 0; i < getClients.users.Length; i++)
+            for (int i = 0; i < getUsers.users.Length; i++)
             {
-                Packets.Types.Data.UserData data = getClients.users[i];
+                Packets.Types.Data.UserData data = getUsers.users[i];
 
                 ClientUser user;
                 if (Users.TryGetValue(data.userID, out user))
@@ -151,7 +151,7 @@ namespace EtcordSharp.Client
                 ClientUser user;
                 if (!Users.TryGetValue(voiceChannelJoin.userID, out user))
                 {
-                    SendPacket(PacketType.GetClients, new GetUsers(new UserData { userID = voiceChannelJoin.userID }));
+                    SendPacket(new GetUsers(new UserData { userID = voiceChannelJoin.userID }));
                     user = new ClientUser(voiceChannelJoin.userID, "unknown");
 
                     foreach (KeyValuePair<int, ClientUser> userrrr in Users)
@@ -187,7 +187,7 @@ namespace EtcordSharp.Client
                 ClientUser user;
                 if (!Users.TryGetValue(voiceChannelLeave.userID, out user))
                 {
-                    SendPacket(PacketType.GetClients, new GetUsers(new UserData { userID = voiceChannelLeave.userID }));
+                    SendPacket(new GetUsers(new UserData { userID = voiceChannelLeave.userID }));
                     user = new ClientUser(voiceChannelLeave.userID, "unknown");
                 }
                 else

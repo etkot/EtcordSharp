@@ -101,9 +101,9 @@ namespace EtcordSharp.Client
         }
 
 
-        public void SendPacket<T>(PacketType packetType, T packet) where T : IPacketStruct
+        public void SendPacket<T>(T packet) where T : IPacketStruct
         {
-            PacketTransport.SendPacket(netClient.FirstPeer, packetType, packet);
+            PacketTransport.SendPacket(netClient.FirstPeer, packet);
         }
         public void SendEvent(PacketType packetType)
         {
@@ -117,7 +117,7 @@ namespace EtcordSharp.Client
             Console.WriteLine("Send Handshake");
 
             State = ClientState.Handshaking;
-            SendPacket(PacketType.Handshake, new Packets.Packets.Handshake
+            SendPacket(new Packets.Packets.Handshake
             {
                 protocolVersion = ProtocolVersion,
                 nextState = Packets.Packets.Handshake.NextState.Login,
@@ -130,7 +130,7 @@ namespace EtcordSharp.Client
 
             if (State == ClientState.Login)
             {
-                SendPacket(PacketType.Login, new Login()
+                SendPacket(new Login()
                 {
                     user = { name = name },
                 });
@@ -141,7 +141,7 @@ namespace EtcordSharp.Client
         {
             Console.WriteLine("Sending chat message to channel " + channel.ChannelID + " with content \"" + content + "\"");
 
-            SendPacket(PacketType.ChatMessage, new ChatMessage
+            SendPacket(new ChatMessage
             {
                 channelID = channel.ChannelID,
                 message = new Packets.Types.Data.MessageData
@@ -159,7 +159,7 @@ namespace EtcordSharp.Client
             if (User.voiceChannel == channel)
                 return;
 
-            SendPacket(PacketType.VoiceChannelJoin, new VoiceChannelJoin
+            SendPacket(new VoiceChannelJoin
             {
                 channelID = channel.ChannelID
             });
@@ -170,7 +170,7 @@ namespace EtcordSharp.Client
             if (User.voiceChannel == null)
                 return;
 
-            SendPacket(PacketType.VoiceChannelLeave, new VoiceChannelLeave
+            SendPacket(new VoiceChannelLeave
             {
                 channelID = User.voiceChannel.ChannelID,
             });

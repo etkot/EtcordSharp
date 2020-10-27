@@ -103,8 +103,10 @@ namespace EtcordSharp.Packets
         }
 
         private static readonly MethodInfo SerializePacketInfo = typeof(PacketSerializer).GetMethod("SerializePacket");
-        public static byte[] SerializePacket<T>(PacketType type, T packet) where T : IPacketStruct
+        public static byte[] SerializePacket<T>(T packet) where T : IPacketStruct
         {
+            PacketType type = ((Packet)typeof(T).GetCustomAttribute(typeof(Packet))).Type;
+            
             FieldInfo[] fields = packet.GetType().GetFields();
 
             int packetTypeSize = GetObjectSize(type);

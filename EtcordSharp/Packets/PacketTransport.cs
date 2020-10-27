@@ -9,7 +9,7 @@ namespace EtcordSharp.Packets
 {
     public static class PacketTransport
     {
-        public static void SendPacket<T>(NetPeer peer, PacketType packetType, T packet) where T : IPacketStruct
+        public static void SendPacket<T>(NetPeer peer, T packet) where T : IPacketStruct
         {
             Packet packetAttr = (Packet)typeof(T).GetCustomAttribute(typeof(Packet), false);
             if (packetAttr == null)
@@ -19,7 +19,7 @@ namespace EtcordSharp.Packets
             }
 
             DeliveryMethod deliveryMethod = packetAttr.Reliable ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable;
-            byte[] data = PacketSerializer.SerializePacket(packetType, packet);
+            byte[] data = PacketSerializer.SerializePacket(packet);
             peer.Send(data, deliveryMethod);
         }
 

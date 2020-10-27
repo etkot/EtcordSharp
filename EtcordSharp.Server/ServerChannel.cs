@@ -58,7 +58,7 @@ namespace EtcordSharp.Server
             ServerMessage message = new ServerMessage(server, this, ++lastMessageID, sender, content);
             Messages.Add(message.MessageID, message);
 
-            server.SendToAuthenticated(Packets.PacketType.ChatMessage, new Packets.Packets.ChatMessage
+            server.SendToAuthenticated(new Packets.Packets.ChatMessage
             {
                 channelID = ChannelID,
                 message = message.GetMessageData(),
@@ -71,7 +71,7 @@ namespace EtcordSharp.Server
             {
                 VoiceClients.Add(client);
 
-                server.SendToAuthenticated(PacketType.VoiceChannelJoin, new Packets.Packets.VoiceChannelJoin
+                server.SendToAuthenticated(new Packets.Packets.VoiceChannelJoin
                 {
                     channelID = ChannelID,
                     userID = client.ConnectionId,
@@ -86,7 +86,7 @@ namespace EtcordSharp.Server
         {
             if (VoiceClients.Contains(client))
             {
-                server.SendToAuthenticated(PacketType.VoiceChannelLeave, new Packets.Packets.VoiceChannelLeave
+                server.SendToAuthenticated(new Packets.Packets.VoiceChannelLeave
                 {
                     channelID = ChannelID,
                     userID = client.ConnectionId,
@@ -105,7 +105,7 @@ namespace EtcordSharp.Server
             {
                 if (client != sender)
                 {
-                    client.SendPacket(PacketType.VoiceData, voiceData);
+                    client.SendPacket(voiceData);
                 }
             }
         }

@@ -4,7 +4,7 @@ using EtcordSharp.Packets.Types.Data;
 
 namespace EtcordSharp.Packets.Packets
 {
-    [Packet(Reliable = true)]
+    [Packet(PacketType.VoiceChannelJoin, Reliable = true)]
     public struct VoiceChannelJoin : IPacketStruct
     {
         public VarInt channelID;

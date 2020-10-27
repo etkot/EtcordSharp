@@ -49,14 +49,14 @@ namespace EtcordSharp.Server
             }
         }
 
-        public void SendToAuthenticated<T>(PacketType packetType, T packet) where T : IPacketStruct
+        public void SendToAuthenticated<T>(T packet) where T : IPacketStruct
         {
             foreach (KeyValuePair<int, ServerClient> pair in Clients)
             {
                 ServerClient client = pair.Value;
                 if (client.State == ServerClient.ClientState.Authenticated)
                 {
-                    PacketTransport.SendPacket(client.Peer, packetType, packet);
+                    PacketTransport.SendPacket(client.Peer, packet);
                 }
             }
         }

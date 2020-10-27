@@ -43,7 +43,7 @@ namespace EtcordSharp.Server
 
         }
 
-        public Packets.Types.Data.UserData GetClientData()
+        public Packets.Types.Data.UserData GetUserData()
         {
             return new Packets.Types.Data.UserData
             {
@@ -52,9 +52,9 @@ namespace EtcordSharp.Server
             };
         }
 
-        public void SendPacket<T>(PacketType packetType, T packet) where T : IPacketStruct
+        public void SendPacket<T>(T packet) where T : IPacketStruct
         {
-            PacketTransport.SendPacket(Peer, packetType, packet);
+            PacketTransport.SendPacket(Peer, packet);
         }
 
         public void Disconnect()
@@ -82,7 +82,7 @@ namespace EtcordSharp.Server
             }
             else
             {
-                SendPacket(PacketType.Handshake, new Packets.Packets.Handshake
+                SendPacket(new Packets.Packets.Handshake
                 {
                     protocolVersion = Server.ProtocolVersion,
                     nextState = Packets.Packets.Handshake.NextState.None,
@@ -126,7 +126,7 @@ namespace EtcordSharp.Server
             };
         }
         
-        [PacketReceiver(PacketType.GetClients)]
+        [PacketReceiver(PacketType.GetUsers)]
         public Packets.Packets.GetUsers GetClients(Packets.Packets.GetUsers getUsers)
         {
             List<Packets.Types.Data.UserData> userDatas = new List<Packets.Types.Data.UserData>();
@@ -135,7 +135,7 @@ namespace EtcordSharp.Server
                 ServerClient client;
                 if (server.Clients.TryGetValue(userData.userID, out client))
                 {
-                    userDatas.Add(client.GetClientData());
+                    userDatas.Add(client.GetUserData());
                 }
             }
 
