@@ -13,7 +13,7 @@ namespace EtcordSharp.Client
         [PacketReceiver(PacketType.Handshake)]
         public void ReceiveHandshake(Handshake handshake)
         {
-            Console.WriteLine("Handshake");
+            Console.WriteLine("Received Handshake");
 
             State = ClientState.Login;
 
@@ -26,7 +26,7 @@ namespace EtcordSharp.Client
         [PacketReceiver(PacketType.Login)]
         public void ReceiveLogin(Login login)
         {
-            Console.WriteLine("Login");
+            Console.WriteLine("Received Login");
             
             User = new ClientUser(login.user);
             User.SetLocal(true);
@@ -36,6 +36,7 @@ namespace EtcordSharp.Client
 
             // Request channels
             SendEvent(PacketType.GetChannels);
+            Console.WriteLine("Sent GetChannels");
         }
 
 

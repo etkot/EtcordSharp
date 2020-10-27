@@ -3,6 +3,7 @@ using EtcordSharp.Packets.Attributes;
 
 namespace EtcordSharp.Packets.Packets
 {
+    [Packet(Reliable = true)]
     public struct VoiceChannelLeave : IPacketStruct
     {
         [EnumPackageType(typeof(VarInt))]

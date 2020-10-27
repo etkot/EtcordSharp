@@ -30,16 +30,17 @@ namespace EtcordSharp.Packets
             PacketReceiver attr = (PacketReceiver)method.GetCustomAttribute(typeof(PacketReceiver));
             if (attr != null)
             {
-                if (!methods.ContainsKey(attr.messageType))
-                    methods.Add(attr.messageType, method);
+                if (!methods.ContainsKey(attr.MessageType))
+                    methods.Add(attr.MessageType, method);
                 else
-                    Console.WriteLine("Error: Multiple receiver methods for packet \"" + attr.messageType.ToString() + "\" (" + methods[attr.messageType].Name + " and " + method.Name + ")");
+                    Console.WriteLine("Error: Multiple receiver methods for packet \"" + attr.MessageType.ToString() + "\" (" + methods[attr.MessageType].Name + " and " + method.Name + ")");
             }
         }
 
-        public static byte[] ReceivePacket(object recipient, byte[] data)
+        public static byte[] ReceivePacket(object recipient, byte[] data, int offset, out bool isResponseReliable)
         {
-            int position = 0;
+            isResponseReliable = true;
+            int position = offset;
 
             // Get the packet type
             object packetType;
@@ -89,6 +90,7 @@ namespace EtcordSharp.Packets
                 // If the method returned a packet struct send it as a response
                 if (ret != null && ret.GetType().GetInterfaces().Contains(typeof(IPacketStruct)))
                 {
+                    isResponseReliable = ((Packet)ret.GetType().GetCustomAttribute(typeof(Packet), false)).Reliable;
                     return (byte[])SerializePacketInfo.MakeGenericMethod(new[] { ret.GetType() }).Invoke(null, new[] { (PacketType)packetType, ret });
                 }
                 return null;

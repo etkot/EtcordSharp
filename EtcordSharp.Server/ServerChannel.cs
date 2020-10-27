@@ -9,7 +9,7 @@ namespace EtcordSharp.Server
     {
         public enum ChannelType
         {
-            None = 0,
+            None = 0, // or category
             TextChat = 1,
             VoiceChat = 2,
             Both = 3,
@@ -57,7 +57,7 @@ namespace EtcordSharp.Server
             ServerMessage message = new ServerMessage(server, this, ++lastMessageID, sender, content);
             Messages.Add(message.MessageID, message);
 
-            server.SendPacketToConnected(Packets.PacketType.ChatMessage, new Packets.Packets.ChatMessage
+            server.SendToAuthenticated(Packets.PacketType.ChatMessage, new Packets.Packets.ChatMessage
             {
                 channelID = ChannelID,
                 message = message.GetMessageData(),
@@ -70,7 +70,7 @@ namespace EtcordSharp.Server
             {
                 VoiceClients.Add(client);
 
-                server.SendPacketToConnected(PacketType.VoiceChannelJoin, new Packets.Packets.VoiceChannelJoin
+                server.SendToAuthenticated(PacketType.VoiceChannelJoin, new Packets.Packets.VoiceChannelJoin
                 {
                     channelID = ChannelID,
                     userID = client.ConnectionId,
@@ -85,7 +85,7 @@ namespace EtcordSharp.Server
         {
             if (VoiceClients.Contains(client))
             {
-                server.SendPacketToConnected(PacketType.VoiceChannelLeave, new Packets.Packets.VoiceChannelLeave
+                server.SendToAuthenticated(PacketType.VoiceChannelLeave, new Packets.Packets.VoiceChannelLeave
                 {
                     channelID = ChannelID,
                     userID = client.ConnectionId,

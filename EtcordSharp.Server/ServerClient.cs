@@ -1,5 +1,6 @@
 ﻿using EtcordSharp.Packets;
 using EtcordSharp.Packets.Attributes;
+using LiteNetLib;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -15,24 +16,25 @@ namespace EtcordSharp.Server
         {
             Handshaking,
             Login,
-            Connected,
+            Authenticated,
         }
 
         private Server server;
 
+        public NetPeer Peer { get; private set; }
         public int ConnectionId { get; private set; }
         public ClientState State { get; private set; }
 
         public string Username { get; private set; }
         public ServerChannel VoiceChannel { get; private set; }
-        public UdpClient VoiceClient { get; private set; }
 
 
-        public ServerClient(Server server, int connectionId)
+        public ServerClient(Server server, NetPeer peer)
         {
             this.server = server;
 
-            ConnectionId = connectionId;
+            Peer = peer;
+            ConnectionId = peer.Id;
             State = ClientState.Handshaking;
         }
 
@@ -52,12 +54,12 @@ namespace EtcordSharp.Server
 
         public void SendPacket<T>(PacketType packetType, T packet) where T : IPacketStruct
         {
-            server.SendPacket(this, packetType, packet);
+            PacketTransport.SendPacket(Peer, packetType, packet);
         }
 
         public void Disconnect()
         {
-            server.DisconnectClient(this);
+            Peer.Disconnect();
         }
 
 
@@ -93,13 +95,24 @@ namespace EtcordSharp.Server
         }
         
         [PacketReceiver(PacketType.Login)]
-        public Packets.Packets.Login Login(Packets.Packets.Login login)
+        public Packets.Packets.Login? Login(Packets.Packets.Login login)
         {
+            if (State == ClientState.Handshaking)
+            {
+                Console.WriteLine("Client " + ConnectionId + " hasn't done a handshake yet");
+                return null;
+            }
+            else if (State == ClientState.Authenticated)
+            {
+                Console.WriteLine("Client " + ConnectionId + " has already logged in");
+                return null;
+            }
+
             Username = login.user.name;
             if (Username.Length > UsernameCharacterLimit)
                 Username = Username.Substring(0, UsernameCharacterLimit);
 
-            State = ClientState.Connected;
+            State = ClientState.Authenticated;
 
             Console.WriteLine("Login \"" + Username + "\"");
 
@@ -114,7 +127,7 @@ namespace EtcordSharp.Server
         }
         
         [PacketReceiver(PacketType.GetClients)]
-        public Packets.Packets.GetUsers GetClients (Packets.Packets.GetUsers getUsers)
+        public Packets.Packets.GetUsers GetClients(Packets.Packets.GetUsers getUsers)
         {
             List<Packets.Types.Data.UserData> userDatas = new List<Packets.Types.Data.UserData>();
             foreach (Packets.Types.Data.UserData userData in getUsers.users)

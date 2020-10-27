@@ -3,6 +3,7 @@ using EtcordSharp.Packets.Types;
 
 namespace EtcordSharp.Packets.Packets
 {
+    [Packet(Reliable = true)]
     public struct Handshake : IPacketStruct
     {
         [EnumPackageType(typeof(VarInt))]

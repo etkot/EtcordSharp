@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ENet-CSharp" Version="2.4.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EtcordSharp\EtcordSharp.csproj" />
   </ItemGroup>
 
