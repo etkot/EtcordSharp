@@ -224,6 +224,7 @@ namespace EtcordSharp.Server
                 };
             }
         }
+
         
         [PacketReceiver(PacketType.VoiceChannelJoin)]
         public Packets.Packets.VoiceChannelJoin? VoiceChannelJoin(Packets.Packets.VoiceChannelJoin voiceChannelJoin)
@@ -267,6 +268,17 @@ namespace EtcordSharp.Server
 
             VoiceChannel.LeaveVoice(this);
             VoiceChannel = null;
+            return null;
+        }
+
+        [PacketReceiver(PacketType.VoiceData)]
+        public Packets.Packets.VoiceData? VoiceData(Packets.Packets.VoiceData voiceData)
+        {
+            if (VoiceChannel != null && voiceData.channelID == VoiceChannel.ChannelID && voiceData.userID == ConnectionId)
+            {
+                VoiceChannel.SendVoice(this, voiceData);
+            }
+
             return null;
         }
 

@@ -27,5 +27,6 @@ namespace EtcordSharp.Packets
         // Voice chat
         VoiceChannelJoin = 0x40,
         VoiceChannelLeave = 0x41,
+        VoiceData = 0x42,
     }
 }

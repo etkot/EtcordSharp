@@ -1,4 +1,5 @@
 ﻿using EtcordSharp.Packets;
+using EtcordSharp.Packets.Packets;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -94,6 +95,19 @@ namespace EtcordSharp.Server
             }
 
             return false;
+        }
+        public void SendVoice(ServerClient sender, VoiceData voiceData)
+        {
+            if (Type != ChannelType.VoiceChat && Type != ChannelType.Both)
+                return;
+
+            foreach (ServerClient client in VoiceClients)
+            {
+                if (client != sender)
+                {
+                    client.SendPacket(PacketType.VoiceData, voiceData);
+                }
+            }
         }
     }
 }
