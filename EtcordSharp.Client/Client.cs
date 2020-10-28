@@ -6,6 +6,8 @@ using System.Threading;
 using LiteNetLib;
 using System.Net;
 using System.Net.Sockets;
+using EtcordSharp.Client.Audio;
+using EtcordSharp.Packets.Types.Data;
 
 namespace EtcordSharp.Client
 {
@@ -47,6 +49,9 @@ namespace EtcordSharp.Client
 
         private NetManager netClient;
         private int clientID;
+
+        public static Func<AudioPlayer> CreateAudioPlayer;
+        public static Func<AudioRecorder> CreateAudioRecorder;
 
         private string usernameToRequest;
 
@@ -111,6 +116,36 @@ namespace EtcordSharp.Client
         }
 
 
+        private ClientUser AddUser(int userID, string username, bool isLocal = false)
+        {
+            ClientUser user = new ClientUser(userID, username);
+            Users.Add(user.UserID, user);
+
+            if (isLocal)
+            {
+                User = user;
+                User.SetLocal(true);
+            }
+
+            OnUserAdded?.Invoke(user);
+            return user;
+        }
+        private ClientUser GetUser(int userID)
+        {
+            ClientUser user;
+            if (!Users.TryGetValue(userID, out user))
+            {
+                user = new ClientUser(userID, "");
+                SendPacket(new GetUsers
+                {
+                    users = new Packets.Types.Array<UserData>(new UserData[] { new UserData { userID = userID } })
+                });
+            }
+
+            return user;
+        }
+
+        #region Send Helpers
 
         public void SendHandshake()
         {
@@ -137,7 +172,7 @@ namespace EtcordSharp.Client
             }
         }
 
-        public void SendMessage(ClientChannel channel, string content)
+        public void SendChatMessage(ClientChannel channel, string content)
         {
             Console.WriteLine("Sending chat message to channel " + channel.ChannelID + " with content \"" + content + "\"");
 
@@ -176,7 +211,7 @@ namespace EtcordSharp.Client
             });
         }
 
-
+        #endregion Send Helpers
 
         #region Message receive
 

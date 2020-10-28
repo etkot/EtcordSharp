@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EtcordSharp.Client.Audio;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,17 +13,15 @@ namespace EtcordSharp.Client
         public bool IsLocal { get; private set; }
 
         public ClientChannel voiceChannel { get; private set; }
+        public AudioPlayer audioPlayer { get; private set; }
 
 
-        public ClientUser(Packets.Types.Data.UserData data)
-        {
-            UserID = data.userID;
-            Name = data.name;
-        }
         public ClientUser(int userID, string name)
         {
             UserID = userID;
             Name = name;
+
+            audioPlayer = Client.CreateAudioPlayer();
         }
 
         public void SetLocal(bool isLocal)

@@ -24,6 +24,7 @@ namespace EtcordSharp.Client.Windows
         {
             InitializeComponent();
 
+            Client.CreateAudioPlayer = () => new WindowsAudioPlayer();
             client = new Client();
 
             receiveTimer = new Timer();
@@ -242,7 +243,7 @@ namespace EtcordSharp.Client.Windows
         {
             if (chatInputBox.Text.Length > 0)
             {
-                client.SendMessage(selectedChannel, chatInputBox.Text);
+                client.SendChatMessage(selectedChannel, chatInputBox.Text);
 
                 chatInputBox.Text = "";
             }

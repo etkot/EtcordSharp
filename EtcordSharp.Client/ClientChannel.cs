@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EtcordSharp.Client.Audio.Codecs;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -16,6 +17,8 @@ namespace EtcordSharp.Client
 
         private Client client;
 
+        private Codec voiceCodec;
+
         public int ChannelID { get; private set; }
         public ClientChannel Parent { get; private set; }
         public string Name { get; private set; }
@@ -28,6 +31,7 @@ namespace EtcordSharp.Client
         public ClientChannel(Client client, int id, ClientChannel parent, string name, ChannelType type)
         {
             this.client = client;
+            voiceCodec = new Opus();
 
             ChannelID = id;
             Parent = parent;
@@ -60,6 +64,12 @@ namespace EtcordSharp.Client
                 count = 100,
                 offsetID = -1,
             });
+        }
+
+        public void ReceiveVoiceData(ClientUser user, byte[] data)
+        {
+            short[] voice = voiceCodec.Decode(data);
+            user.audioPlayer.Play(voice, 0, voice.Length);
         }
 
 

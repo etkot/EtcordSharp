@@ -28,9 +28,7 @@ namespace EtcordSharp.Client
         {
             Console.WriteLine("Received Login");
             
-            User = new ClientUser(login.user);
-            User.SetLocal(true);
-            Users.Add(User.UserID, User);
+            AddUser(login.user.userID, login.user.name, true);
 
             State = ClientState.Connected;
 
@@ -44,7 +42,7 @@ namespace EtcordSharp.Client
         [PacketReceiver(PacketType.GetUsers)]
         public void ReceiveGetUsers(GetUsers getUsers)
         {
-            Console.WriteLine("GetClients");
+            Console.WriteLine("GetUsers");
 
             for (int i = 0; i < getUsers.users.Length; i++)
             {
@@ -59,10 +57,7 @@ namespace EtcordSharp.Client
                 }
                 else
                 {
-                    user = new ClientUser(data);
-                    Users.Add(user.UserID, user);
-
-                    OnUserAdded?.Invoke(user);
+                    AddUser(data.userID, data.name);
                 }
             }
         }
@@ -148,17 +143,7 @@ namespace EtcordSharp.Client
             {
                 Console.WriteLine("User count: " + Users.Count);
 
-                ClientUser user;
-                if (!Users.TryGetValue(voiceChannelJoin.userID, out user))
-                {
-                    SendPacket(new GetUsers(new UserData { userID = voiceChannelJoin.userID }));
-                    user = new ClientUser(voiceChannelJoin.userID, "unknown");
-
-                    foreach (KeyValuePair<int, ClientUser> userrrr in Users)
-                    {
-                        Console.WriteLine(userrrr.Value.UserID + "  " + voiceChannelJoin.userID);
-                    }
-                }
+                ClientUser user = GetUser(voiceChannelJoin.userID);
 
                 user.SetVoiceChannel(channel);
                 channel.VoiceUsers.Add(user.UserID, user);
@@ -166,6 +151,7 @@ namespace EtcordSharp.Client
             }
             else
             {
+                // Client doesn't have channel cached
                 // TODO: GetChannels
             }
         }
@@ -184,16 +170,8 @@ namespace EtcordSharp.Client
             ClientChannel channel;
             if (Channels.TryGetValue(voiceChannelLeave.channelID, out channel))
             {
-                ClientUser user;
-                if (!Users.TryGetValue(voiceChannelLeave.userID, out user))
-                {
-                    SendPacket(new GetUsers(new UserData { userID = voiceChannelLeave.userID }));
-                    user = new ClientUser(voiceChannelLeave.userID, "unknown");
-                }
-                else
-                {
-                    channel.VoiceUsers.Remove(user.UserID);
-                }
+                ClientUser user = GetUser(voiceChannelLeave.userID);
+                channel.VoiceUsers.Remove(user.UserID);
 
                 user.SetVoiceChannel(null);
                 OnUserLeaveVoice?.Invoke(user, channel);
@@ -203,6 +181,23 @@ namespace EtcordSharp.Client
                 // TODO: GetChannels
 
                 Console.WriteLine("Channel not found " + voiceChannelLeave.channelID);
+            }
+        }
+
+        [PacketReceiver(PacketType.VoiceData)]
+        public void ReceiveVoiceData(VoiceData voiceData)
+        {
+            ClientChannel channel;
+            if (Channels.TryGetValue(voiceData.channelID, out channel))
+            {
+                ClientUser user = GetUser(voiceData.userID);
+                channel.ReceiveVoiceData(user, voiceData.data);
+            }
+            else
+            {
+                // TODO: GetChannels
+
+                Console.WriteLine("Channel not found " + voiceData.channelID);
             }
         }
     }

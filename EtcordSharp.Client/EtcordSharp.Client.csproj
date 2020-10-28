@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Concentus" Version="1.1.7" />
     <PackageReference Include="ENet-CSharp" Version="2.4.5" />
   </ItemGroup>
 
