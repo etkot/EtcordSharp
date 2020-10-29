@@ -26,10 +26,10 @@ namespace EtcordSharp.Client.Windows
 
         public override void Play(short[] data, int offset, int length)
         {
-            byte[] byteArray = new byte[data.Length * 2];
+            byte[] byteArray = new byte[length * 2];
             Buffer.BlockCopy(data, 0, byteArray, 0, byteArray.Length);
 
-            bwp.AddSamples(byteArray, offset, length);
+            bwp.AddSamples(byteArray, 0, byteArray.Length);
         }
     }
 }

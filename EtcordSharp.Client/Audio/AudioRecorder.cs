@@ -7,7 +7,6 @@ namespace EtcordSharp.Client.Audio
 {
     public abstract class AudioRecorder
     {
-
-        public abstract void Play(short[] data, int offset, int length);
+        public abstract bool GetExact(short[] data, int offset, int length);
     }
 }

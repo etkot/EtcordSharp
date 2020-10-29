@@ -91,7 +91,7 @@ namespace EtcordSharp.Packets
                 if (ret != null && ret.GetType().GetInterfaces().Contains(typeof(IPacketStruct)))
                 {
                     isResponseReliable = ((Packet)ret.GetType().GetCustomAttribute(typeof(Packet), false)).Reliable;
-                    return (byte[])SerializePacketInfo.MakeGenericMethod(new[] { ret.GetType() }).Invoke(null, new[] { (PacketType)packetType, ret });
+                    return (byte[])SerializePacketInfo.MakeGenericMethod(new[] { ret.GetType() }).Invoke(null, new[] { ret });
                 }
                 return null;
             }

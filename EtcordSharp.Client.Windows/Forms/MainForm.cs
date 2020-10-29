@@ -25,6 +25,8 @@ namespace EtcordSharp.Client.Windows
             InitializeComponent();
 
             Client.CreateAudioPlayer = () => new WindowsAudioPlayer();
+            Client.CreateAudioRecorder = () => new WindowsAudioRecorder();
+
             client = new Client();
 
             receiveTimer = new Timer();
@@ -206,7 +208,7 @@ namespace EtcordSharp.Client.Windows
 
         private void buttonLeave_Click(object sender, EventArgs e)
         {
-            client.LeaveVoiceChannel();
+            client.SendLeaveVoiceChannel();
         }
 
         private void treeViewChannels_AfterSelect(object sender, TreeViewEventArgs e)
@@ -225,7 +227,7 @@ namespace EtcordSharp.Client.Windows
         {
             if (treeViewChannels.SelectedNode.Bounds.Contains(e.Location))
             {
-                client.JoinVoiceChannel(selectedChannel);
+                client.SendJoinVoiceChannel(selectedChannel);
             }
         }
 

@@ -147,6 +147,10 @@ namespace EtcordSharp.Client
 
                 user.SetVoiceChannel(channel);
                 channel.VoiceUsers.Add(user.UserID, user);
+
+                if (user.IsLocal)
+                    JoinVoiceChannel(channel);
+
                 OnUserJoinVoice?.Invoke(user, channel);
             }
             else

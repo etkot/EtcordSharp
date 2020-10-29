@@ -53,6 +53,8 @@ namespace EtcordSharp.Client
         public static Func<AudioPlayer> CreateAudioPlayer;
         public static Func<AudioRecorder> CreateAudioRecorder;
 
+        private AudioRecorder audioRecorder;
+
         private string usernameToRequest;
 
 
@@ -103,6 +105,9 @@ namespace EtcordSharp.Client
         {
             if (netClient != null)
                 netClient.PollEvents();
+
+            if (User != null && User.VoiceChannel != null)
+                SendVoiceData();
         }
 
 
@@ -143,6 +148,11 @@ namespace EtcordSharp.Client
             }
 
             return user;
+        }
+
+        private void JoinVoiceChannel(ClientChannel channel)
+        {
+            audioRecorder = CreateAudioRecorder();
         }
 
         #region Send Helpers
@@ -188,10 +198,10 @@ namespace EtcordSharp.Client
 
 
 
-        public void JoinVoiceChannel(ClientChannel channel)
+        public void SendJoinVoiceChannel(ClientChannel channel)
         {
             Console.WriteLine(channel.Name);
-            if (User.voiceChannel == channel)
+            if (User.VoiceChannel == channel)
                 return;
 
             SendPacket(new VoiceChannelJoin
@@ -200,15 +210,29 @@ namespace EtcordSharp.Client
             });
         }
 
-        public void LeaveVoiceChannel()
+        public void SendLeaveVoiceChannel()
         {
-            if (User.voiceChannel == null)
+            if (User.VoiceChannel == null)
                 return;
 
             SendPacket(new VoiceChannelLeave
             {
-                channelID = User.voiceChannel.ChannelID,
+                channelID = User.VoiceChannel.ChannelID,
             });
+        }
+
+        private void SendVoiceData()
+        {
+            byte[] data;
+            while (User.VoiceChannel.CreateVoicePacket(audioRecorder, out data))
+            {
+                SendPacket(new VoiceData
+                {
+                    userID = User.UserID,
+                    channelID = User.VoiceChannel.ChannelID,
+                    data = data
+                });
+            }
         }
 
         #endregion Send Helpers

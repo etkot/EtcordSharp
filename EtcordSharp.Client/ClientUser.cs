@@ -1,4 +1,5 @@
 ﻿using EtcordSharp.Client.Audio;
+using EtcordSharp.Client.Audio.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +13,9 @@ namespace EtcordSharp.Client
 
         public bool IsLocal { get; private set; }
 
-        public ClientChannel voiceChannel { get; private set; }
+        public ClientChannel VoiceChannel { get; private set; }
+
+        public Codec VoiceCodec { get; private set; }
         public AudioPlayer audioPlayer { get; private set; }
 
 
@@ -21,6 +24,7 @@ namespace EtcordSharp.Client
             UserID = userID;
             Name = name;
 
+            VoiceCodec = new Opus();
             audioPlayer = Client.CreateAudioPlayer();
         }
 
@@ -34,7 +38,7 @@ namespace EtcordSharp.Client
         }
         public void SetVoiceChannel(ClientChannel channel)
         {
-            voiceChannel = channel;
+            VoiceChannel = channel;
         }
     }
 }

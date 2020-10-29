@@ -1,4 +1,5 @@
-﻿using EtcordSharp.Client.Audio.Codecs;
+﻿using EtcordSharp.Client.Audio;
+using EtcordSharp.Client.Audio.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,8 +18,6 @@ namespace EtcordSharp.Client
 
         private Client client;
 
-        private Codec voiceCodec;
-
         public int ChannelID { get; private set; }
         public ClientChannel Parent { get; private set; }
         public string Name { get; private set; }
@@ -31,7 +30,6 @@ namespace EtcordSharp.Client
         public ClientChannel(Client client, int id, ClientChannel parent, string name, ChannelType type)
         {
             this.client = client;
-            voiceCodec = new Opus();
 
             ChannelID = id;
             Parent = parent;
@@ -68,8 +66,30 @@ namespace EtcordSharp.Client
 
         public void ReceiveVoiceData(ClientUser user, byte[] data)
         {
-            short[] voice = voiceCodec.Decode(data);
-            user.audioPlayer.Play(voice, 0, voice.Length);
+            short[] voiceData = user.VoiceCodec.Decode(data);
+            user.audioPlayer.Play(voiceData, 0, voiceData.Length);
+        }
+
+        /// <summary>
+        /// Gets voice data from the given AudioRecorder and compresses it with this channels codec
+        /// </summary>
+        /// <param name="recorder">The audio source</param>
+        /// <param name="data">Compressed voice data</param>
+        /// <returns>Whether there is more data to send</returns>
+        public bool CreateVoicePacket(AudioRecorder recorder, out byte[] data)
+        {
+            // TODO: Don't make a new array every time
+            short[] voiceData = new short[client.User.VoiceCodec.FrameSize];
+            bool more = recorder.GetExact(voiceData, 0, voiceData.Length);
+
+            if (!more)
+            {
+                data = null;
+                return false;
+            }
+
+            data = client.User.VoiceCodec.Encode(voiceData);
+            return more;
         }
 
 
