@@ -10,6 +10,10 @@ jobs:
   build:
 
     runs-on: windows-latest
+    
+    env:
+      Server_Build_Path: EtcordSharp.Server\bin\Release\netcoreapp3.0
+      Client_Build_Path: EtcordSharp.Client.Windows\bin\Release\netcoreapp3.0
 
     steps:
     - uses: actions/checkout@v2
@@ -23,3 +27,16 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
+
+    - name: Upload server build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Server Build
+        path: ${{ env.Server_Build_Path }}
+        
+    - name: Upload client build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Client Build
+        path: ${{ env.Client_Build_Path }}
+
