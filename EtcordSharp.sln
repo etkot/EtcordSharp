@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1000
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtcordSharp.Server", "EtcordSharp.Server\EtcordSharp.Server.csproj", "{74444F04-C4F2-4876-BA18-638F41223557}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtcordSharp.Client", "EtcordSharp.Client\EtcordSharp.Client.csproj", "{83720E78-3FBB-442A-9677-E2E05C48848F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtcordSharp.Client.Windows", "EtcordSharp.Client.Windows\EtcordSharp.Client.Windows.csproj", "{5657507F-1849-4734-96EA-3488593666AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtcordSharp.Client.Windows", "EtcordSharp.Client.Windows\EtcordSharp.Client.Windows.csproj", "{5657507F-1849-4734-96EA-3488593666AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtcordSharp", "EtcordSharp\EtcordSharp.csproj", "{291F17B8-7F52-4D7B-932F-F53B98CC596D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtcordSharp", "EtcordSharp\EtcordSharp.csproj", "{291F17B8-7F52-4D7B-932F-F53B98CC596D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtcordSharp.Client.WebView", "EtcordSharp.Client.WebView\EtcordSharp.Client.WebView.csproj", "{F654DC22-B16D-41C7-AA11-AA838F271036}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{291F17B8-7F52-4D7B-932F-F53B98CC596D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{291F17B8-7F52-4D7B-932F-F53B98CC596D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{291F17B8-7F52-4D7B-932F-F53B98CC596D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F654DC22-B16D-41C7-AA11-AA838F271036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F654DC22-B16D-41C7-AA11-AA838F271036}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F654DC22-B16D-41C7-AA11-AA838F271036}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F654DC22-B16D-41C7-AA11-AA838F271036}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
