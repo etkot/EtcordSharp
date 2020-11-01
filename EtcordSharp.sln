@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtcordSharp.Client.Windows"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtcordSharp", "EtcordSharp\EtcordSharp.csproj", "{291F17B8-7F52-4D7B-932F-F53B98CC596D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtcordSharp.Client.WebView", "EtcordSharp.Client.WebView\EtcordSharp.Client.WebView.csproj", "{F654DC22-B16D-41C7-AA11-AA838F271036}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtcordSharp.Client.WebView", "EtcordSharp.Client.WebView\EtcordSharp.Client.WebView.csproj", "{F654DC22-B16D-41C7-AA11-AA838F271036}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

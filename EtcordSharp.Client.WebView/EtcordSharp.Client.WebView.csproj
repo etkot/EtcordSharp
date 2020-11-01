@@ -1,9 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="app\node_modules\**" />
+    <EmbeddedResource Remove="app\node_modules\**" />
+    <None Remove="app\node_modules\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SharpWebview" Version="0.6.1" />
@@ -12,5 +19,16 @@
   <ItemGroup>
     <ProjectReference Include="..\EtcordSharp.Client\EtcordSharp.Client.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app\build\**\*.*">
+      <Link>app\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <Target Condition=" '$(Configuration)' == 'Release' " Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="npm run build --prefix app/" />
+  </Target>
 
 </Project>

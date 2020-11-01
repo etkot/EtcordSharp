@@ -6,6 +6,7 @@
     <LangVersion>7.3</LangVersion>
     <AssemblyName>EtcordSharp.Server</AssemblyName>
     <RootNamespace>EtcordSharp.Server</RootNamespace>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

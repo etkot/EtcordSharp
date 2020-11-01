@@ -9,13 +9,19 @@ namespace EtcordSharp.Client.WebView
         [STAThread]
         static void Main(string[] args)
         {
-            using (var webview = new Webview())
+            IWebviewContent content = new HostedContent();
+
+#if DEBUG
+            content = new UrlContent("http://localhost:3000");
+#endif
+
+            using (var webview = new Webview(true, true))
             {
                 webview
-                    .SetTitle("The Hitchhicker")
+                    .SetTitle("Etcord")
                     .SetSize(1024, 768, WebviewHint.None)
                     .SetSize(800, 600, WebviewHint.Min)
-                    .Navigate(new UrlContent("https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy_(novel)"))
+                    .Navigate(content)
                     .Run();
             }
         }
