@@ -27,7 +27,7 @@ namespace EtcordSharp.Client
         public void ReceiveLogin(Login login)
         {
             Console.WriteLine("Received Login");
-            
+
             AddUser(login.user.userID, login.user.name, true);
 
             State = ClientState.Connected;
@@ -54,6 +54,7 @@ namespace EtcordSharp.Client
                     user.SetName(data.name);
 
                     OnUserUpdated?.Invoke(user);
+                    eventListener?.OnUserUpdated(user);
                 }
                 else
                 {
@@ -78,6 +79,7 @@ namespace EtcordSharp.Client
                 Channels.Add(data.ChannelID, channel);
 
                 OnChannelAdded?.Invoke(channel);
+                eventListener?.OnChannelAdded(channel);
             }
         }
 
@@ -95,6 +97,7 @@ namespace EtcordSharp.Client
                 {
                     ClientMessage newMessage = channel.AddMessage(message);
                     OnMessageAdded?.Invoke(newMessage);
+                    eventListener?.OnMessageAdded(newMessage);
                 }
             }
             else
@@ -113,6 +116,7 @@ namespace EtcordSharp.Client
             {
                 ClientMessage newMessage = channel.AddMessage(chatMessage.message);
                 OnMessageAdded?.Invoke(newMessage);
+                eventListener?.OnMessageAdded(newMessage);
             }
             else
             {
@@ -152,6 +156,7 @@ namespace EtcordSharp.Client
                     JoinVoiceChannel(channel);
 
                 OnUserJoinVoice?.Invoke(user, channel);
+                eventListener?.OnUserJoinVoice(user, channel);
             }
             else
             {
@@ -179,6 +184,7 @@ namespace EtcordSharp.Client
 
                 user.SetVoiceChannel(null);
                 OnUserLeaveVoice?.Invoke(user, channel);
+                eventListener?.OnUserLeaveVoice(user, channel);
             }
             else
             {

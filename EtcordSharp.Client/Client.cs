@@ -31,12 +31,15 @@ namespace EtcordSharp.Client
             {
                 state = value;
                 OnClientStateChanged?.Invoke(value);
+                eventListener?.OnClientStateChanged(value);
             }
         }
         public ClientUser User { get; private set; }
 
         public Dictionary<int, ClientUser> Users { get; private set; }
         public Dictionary<int, ClientChannel> Channels { get; private set; }
+
+        private IClientEventListener eventListener;
 
         public Action<ClientState> OnClientStateChanged;
         public Action<ClientChannel> OnChannelAdded;
@@ -58,8 +61,10 @@ namespace EtcordSharp.Client
         private string usernameToRequest;
 
 
-        public Client()
+        public Client(IClientEventListener eventListener = null)
         {
+            this.eventListener = eventListener;
+
             Users = new Dictionary<int, ClientUser>();
             Channels = new Dictionary<int, ClientChannel>();
 
@@ -95,7 +100,7 @@ namespace EtcordSharp.Client
             netClient.FirstPeer.Disconnect();
             State = ClientState.Unconnected;
             usernameToRequest = "";
-            
+
             Users = new Dictionary<int, ClientUser>();
             Channels = new Dictionary<int, ClientChannel>();
         }
@@ -133,6 +138,7 @@ namespace EtcordSharp.Client
             }
 
             OnUserAdded?.Invoke(user);
+            eventListener?.OnUserAdded(user);
             return user;
         }
         private ClientUser GetUser(int userID)

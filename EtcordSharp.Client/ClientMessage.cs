@@ -7,10 +7,10 @@ namespace EtcordSharp.Client
     public class ClientMessage
     {
         public ClientChannel Channel { get; private set; }
-        public int MessageID;
-        public int SenderID;
-        public string SenderName;
-        public string Content;
+        public int MessageID { get; private set; }
+        public int SenderID { get; private set; }
+        public string SenderName { get; private set; }
+        public string Content { get; private set; }
 
 
         public ClientMessage(ClientChannel channel, Packets.Types.Data.MessageData message)
