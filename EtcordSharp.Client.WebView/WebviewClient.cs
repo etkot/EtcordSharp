@@ -28,7 +28,7 @@ namespace EtcordSharp.Client.WebView
             webViewEventQueue = new ConcurrentQueue<WebViewEvent>();
 
             webviewThread = new Thread(() => StartWebview());
-            webviewThread.SetApartmentState(ApartmentState.STA);
+            webviewThread.TrySetApartmentState(ApartmentState.STA);
             webviewThread.Start();
 
             client = new Client(this);
