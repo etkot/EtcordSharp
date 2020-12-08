@@ -54,49 +54,42 @@ String containing one of the following options
 
 Object that has the following fields
 
------------------------------------------------------------------------------
 | Name           | Type         | Notes                                     |
------------------------------------------------------------------------------
+| -------------- | ------------ | ----------------------------------------- |
 | ChannelID      | int          |                                           |
 | ParentID       | int          |                                           |
 | Name           | string       |                                           |
 | Type           | string       | 'None', 'TextChat', 'VoiceChat' or 'Both' |
------------------------------------------------------------------------------
 
 #### Message
 
 Object that has the following fields
 
------------------------------------------------------------------------------
 | Name           | Type         | Notes                                     |
------------------------------------------------------------------------------
+| -------------- | ------------ | ----------------------------------------- |
 | ChannelID      | int          |                                           |
 | MessageID      | int          |                                           |
 | SenderID       | int          |                                           |
 | SenderName     | string       |                                           |
 | Content        | string       |                                           |
------------------------------------------------------------------------------
 
 #### User
 
 Object that has the following fields
 
------------------------------------------------------------------------------
 | Name           | Type         | Notes                                     |
------------------------------------------------------------------------------
+| -------------- | ------------ | ----------------------------------------- |
 | UserID         | int          |                                           |
 | Name           | string       |                                           |
 | IsLocal        | bool         |                                           |
 | VoiceChannelID | int          |                                           |
------------------------------------------------------------------------------
 
 
 
 ### Events
 
-----------------------------------------------
 | Name               | Data                  |
-----------------------------------------------
+| ------------------ | --------------------- |
 | ClientStateChanged | ClientState           |
 | ChannelAdded       | Channel               |
 | ChannelUpdated     | Channel               |
@@ -105,7 +98,6 @@ Object that has the following fields
 | UserJoinVoice      | User, Channel         |
 | UserLeaveVoice     | User, Channel         |
 | UserUpdated        | User                  |
-----------------------------------------------
 
 
 
