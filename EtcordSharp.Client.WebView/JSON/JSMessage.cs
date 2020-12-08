@@ -21,6 +21,7 @@ namespace EtcordSharp.Client.WebView.JSON
             jsMessage.ChannelID = clientMessage.Channel.ChannelID;
             jsMessage.MessageID = clientMessage.MessageID;
             jsMessage.SenderID = clientMessage.SenderID;
+            jsMessage.SenderName = clientMessage.SenderName;
             jsMessage.Content = clientMessage.Content;
 
             return jsMessage;

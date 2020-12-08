@@ -191,32 +191,32 @@ namespace EtcordSharp.Client.WebView
 
         public void OnChannelUpdated(ClientChannel channel)
         {
-            SendEvent("ChannelAdded", (JSChannel)channel);
+            SendEvent("ChannelUpdated", (JSChannel)channel);
         }
 
         public void OnMessageAdded(ClientMessage message)
         {
-            SendEvent("ChannelAdded", (JSMessage)message);
+            SendEvent("MessageAdded", (JSMessage)message);
         }
 
         public void OnUserAdded(ClientUser user)
         {
-            SendEvent("ChannelAdded", (JSUser)user);
+            SendEvent("UserAdded", (JSUser)user);
         }
 
         public void OnUserJoinVoice(ClientUser user, ClientChannel channel)
         {
-            SendEvent("ChannelAdded", (JSUser)user, (JSChannel)channel);
+            SendEvent("UserJoinVoice", (JSUser)user, (JSChannel)channel);
         }
 
         public void OnUserLeaveVoice(ClientUser user, ClientChannel channel)
         {
-            SendEvent("ChannelAdded", (JSUser)user, (JSChannel)channel);
+            SendEvent("UserLeaveVoice", (JSUser)user, (JSChannel)channel);
         }
 
         public void OnUserUpdated(ClientUser user)
         {
-            SendEvent("ChannelAdded", (JSUser)user);
+            SendEvent("UserUpdated", (JSUser)user);
         }
 
         #endregion Events
