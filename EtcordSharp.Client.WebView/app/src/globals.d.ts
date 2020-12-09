@@ -23,14 +23,14 @@ type User = {
 }
 
 interface Events {
-    ClientStateChanged: ClientState
-    ChannelAdded: Channel
-    ChannelUpdated: Channel
-    MessageAdded: Message
-    UserAdded: User
-    UserJoinVoice: { User: User; Channel: Channel }
-    UserLeaveVoice: { User: User; Channel: Channel }
-    UserUpdated: User
+    ClientStateChanged: { clientState: ClientState }
+    ChannelAdded: { channel: Channel }
+    ChannelUpdated: { channel: Channel }
+    MessageAdded: { message: Message }
+    UserAdded: { user: User }
+    UserJoinVoice: { user: User; channel: Channel }
+    UserLeaveVoice: { user: User; channel: Channel }
+    UserUpdated: { user: User }
 }
 
 interface EventEmitter {
