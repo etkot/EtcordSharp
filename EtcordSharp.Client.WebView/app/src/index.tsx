@@ -4,6 +4,8 @@ import App from './App'
 
 import 'antd/dist/antd.dark.css'
 
+import './globals'
+
 ReactDOM.render(
     <React.StrictMode>
         <App />
